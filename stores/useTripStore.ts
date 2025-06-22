@@ -45,6 +45,7 @@ interface TripState {
   fetchTrips: (userId: string) => Promise<void>;
   fetchTripById: (tripId: string) => Promise<void>;
   inviteToTrip: (tripId: string, emails: string[]) => Promise<void>;
+  sendTripInvitations: (tripId: string, emails: string[], senderName: string, senderEmail: string) => Promise<void>;
 }
 
 export const useTripStore = create<TripState>((set, get) => ({
@@ -182,6 +183,43 @@ export const useTripStore = create<TripState>((set, get) => ({
       console.error("Error inviting to trip:", error);
       set({ 
         error: error instanceof Error ? error.message : "Failed to invite to trip",
+        isLoading: false
+      });
+    }
+  },
+
+  sendTripInvitations: async (tripId: string, emails: string[], senderName: string, senderEmail: string) => {
+    try {
+      set({ isLoading: true, error: null });
+      
+      // First update the trip document with invited emails
+      await get().inviteToTrip(tripId, emails);
+      
+      // Then send the invitation emails via SendGrid API
+      const response = await fetch('/api/email/send-invite', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tripId,
+          emails,
+          senderName,
+          senderEmail
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send invitation emails');
+      }
+      
+      set({ isLoading: false });
+    } catch (error) {
+      console.error("Error sending trip invitations:", error);
+      set({ 
+        error: error instanceof Error ? error.message : "Failed to send trip invitations",
         isLoading: false
       });
     }
