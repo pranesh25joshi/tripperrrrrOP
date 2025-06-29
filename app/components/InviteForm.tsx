@@ -25,6 +25,8 @@ export default function InviteForm({ tripId, onClose }: InviteFormProps) {
       setError('You must be logged in to send invitations');
       return;
     }
+
+    console.log(emails);
     
     // Split and trim emails
     const emailList = emails

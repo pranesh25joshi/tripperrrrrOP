@@ -1,7 +1,14 @@
 import { NextResponse } from 'next/server';
-import { tokenStore } from '../send-invite/route';
 import { db } from '@/firebase/firebaseConfig';
-import { doc, getDoc } from 'firebase/firestore';
+import { 
+  doc, 
+  getDoc, 
+  collection, 
+  query, 
+  where, 
+  getDocs, 
+  Timestamp 
+} from 'firebase/firestore';
 
 export async function GET(request: Request) {
   try {
@@ -16,20 +23,37 @@ export async function GET(request: Request) {
       );
     }
 
-    // Validate token
-    const tokenData = tokenStore.get(token);
-    if (!tokenData) {
+    // Query Firestore for the token
+    const tokensRef = collection(db, "invitationTokens");
+    const q = query(tokensRef, where("token", "==", token));
+    const querySnapshot = await getDocs(q);
+    
+    if (querySnapshot.empty) {
       return NextResponse.json(
-        { error: 'Invalid or expired token' },
+        { error: 'Invalid invitation token' },
         { status: 400 }
       );
     }
-
-    // Check token expiration
-    if (Date.now() > tokenData.expires) {
-      // Remove expired token
-      tokenStore.delete(token);
+    
+    // Get the token document
+    const tokenDoc = querySnapshot.docs[0];
+    const tokenData = tokenDoc.data();
+    
+    // Check if token is already used
+    if (tokenData.status === "accepted") {
+      return NextResponse.json(
+        { error: 'This invitation has already been accepted' },
+        { status: 400 }
+      );
+    }
+    
+    // Check if token is expired
+    const now = new Date();
+    const expires = tokenData.expires instanceof Timestamp 
+      ? tokenData.expires.toDate()
+      : new Date(tokenData.expires);
       
+    if (now > expires) {
       return NextResponse.json(
         { error: 'Invitation link has expired' },
         { status: 400 }
@@ -55,13 +79,16 @@ export async function GET(request: Request) {
       tripId: tokenData.tripId,
       email: tokenData.email,
       tripName: tripData.name,
-      token // Include token for accept-invite step
+      token,
+      tokenId: tokenDoc.id, // Include the document ID for later reference
+      description: tripData.description || '',
+      createdBy: tripData.createdBy || ''
     });
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error verifying invitation:', error);
     return NextResponse.json(
-      { error: 'Failed to verify invitation' },
+      { error: 'Failed to verify invitation: ' + error.message },
       { status: 500 }
     );
   }

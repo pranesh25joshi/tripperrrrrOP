@@ -2,18 +2,23 @@
   "name": "tripsliptos",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
+    "allmight": "cross-env HOST=127.0.0.1 next dev --turbopack -p 3001",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
     "@sendgrid/mail": "^8.1.5",
+    "bcryptjs": "^3.0.2",
     "firebase": "^11.9.1",
+    "mailtrap": "^4.1.0",
     "next": "15.3.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "resend": "^4.6.0",
     "zustand": "^5.0.5"
   },
   "devDependencies": {
@@ -21,6 +26,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "cross-env": "^7.0.3",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
