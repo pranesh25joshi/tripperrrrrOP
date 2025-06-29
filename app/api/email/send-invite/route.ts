@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
 
     const tripData = tripSnap.data();
 
-    const RESEND_API_KEY = "re_BFsXezEz_PCqS2Qh24e3xnk6SQuVwvbCU";
+    const RESEND_API_KEY = process.env.RESEND_API_KEY;
     const resend = new Resend(RESEND_API_KEY);
 
     // Generate and send unique tokens for each recipient
