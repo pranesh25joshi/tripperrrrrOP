@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/stores/useAuthStore';
 import Link from 'next/link';
@@ -12,7 +12,8 @@ interface TripInvitation {
   token: string;
 }
 
-export default function InvitePage() {
+// Component that uses useSearchParams
+function InviteContent() {
   const [invitation, setInvitation] = useState<TripInvitation | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -295,5 +296,21 @@ export default function InvitePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Main component with Suspense boundary
+export default function InvitePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading invitation...</p>
+        </div>
+      </div>
+    }>
+      <InviteContent />
+    </Suspense>
   );
 }

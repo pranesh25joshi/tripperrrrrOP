@@ -113,7 +113,7 @@ export async function POST(req: NextRequest) {
         results.push({
           email: recipientEmail,
           success: false,
-          error: error.message,
+          error: error instanceof Error ? error.message : "Unknown error",
         });
       }
     }
