@@ -6,28 +6,24 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import Link from 'next/link';
 
 export default function LoginPage() {
-  const [loading, setLoading] = useState(false);
+  const [loginLoading, setLoginLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  const { user, signInWithGoogle, initializeAuth } = useAuthStore();
+  const { user, loading: authLoading, initialized, signInWithGoogle } = useAuthStore();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect') || '/';
   
-  // Initialize auth on page load
+  // Redirect if already logged in and auth is initialized
   useEffect(() => {
-    initializeAuth();
-  }, [initializeAuth]);
-  
-  // Redirect if already logged in
-  useEffect(() => {
-    if (user) {
+    if (user && initialized) {
+      console.log("User already authenticated, redirecting to:", redirect);
       router.push(redirect);
     }
-  }, [user, router, redirect]);
+  }, [user, initialized, router, redirect]);
   
   const handleSignInWithGoogle = async () => {
-    setLoading(true);
+    setLoginLoading(true);
     setError(null);
     
     try {
@@ -35,7 +31,7 @@ export default function LoginPage() {
       // Redirect happens in the useEffect above
     } catch (err) {
       setError('Failed to sign in. Please try again.');
-      setLoading(false);
+      setLoginLoading(false);
     }
   };
   
@@ -63,10 +59,10 @@ export default function LoginPage() {
           <div className="space-y-4">
             <button
               onClick={handleSignInWithGoogle}
-              disabled={loading}
-              className={`w-full flex items-center justify-center px-6 py-3 bg-white border border-gray-300 rounded-lg shadow-sm hover:shadow-md transition duration-200 ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-gray-50'}`}
+              disabled={loginLoading || authLoading}
+              className={`w-full flex items-center justify-center px-6 py-3 bg-white border border-gray-300 rounded-lg shadow-sm hover:shadow-md transition duration-200 ${(loginLoading || authLoading) ? 'opacity-70 cursor-not-allowed' : 'hover:bg-gray-50'}`}
             >
-              {loading ? (
+              {loginLoading || authLoading ? (
                 <div className="flex items-center">
                   <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-500 border-t-transparent mr-3"></div>
                   <span className="text-gray-700">Signing in...</span>

@@ -9,6 +9,8 @@ import InviteForm from '@/app/components/InviteForm';
 import Image from 'next/image';
 import { db } from '@/firebase/firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import ExpenseList from '@/app/components/ExpenseList';
 
 // Interface for member data
 interface MemberData {
@@ -35,22 +37,24 @@ export default function TripPage() {
 
   const { tripId } = useParams<{ tripId: string }>();
   const { currentTrip, isLoading, error, fetchTripById } = useTripStore();
-  const { user, initializeAuth } = useAuthStore();
+  const { user, loading: authLoading, initialized } = useAuthStore();
   const router = useRouter();
 
-  // Initialize auth on component mount
+  // Fetch trip data when user is authenticated
   useEffect(() => {
-    console.log("Initializing auth...");
-    initializeAuth();
-  }, [initializeAuth]);
-
-  // Fetch trip data after initialization
-  useEffect(() => {
-    if (tripId) {
+    if (tripId && user && initialized) {
       console.log("Fetching trip data for ID:", tripId);
       fetchTripById(tripId as string);
     }
-  }, [tripId, fetchTripById]);
+  }, [tripId, fetchTripById, user, initialized]);
+  
+  // Redirect to login if not authenticated and auth is initialized
+  useEffect(() => {
+    if (!user && !authLoading && initialized) {
+      console.log("User not authenticated, redirecting to login");
+      router.push(`/login?redirect=/trips/${tripId}`);
+    }
+  }, [user, authLoading, initialized, router, tripId]);
 
   // Fetch member data when trip data is loaded
   useEffect(() => {
@@ -104,7 +108,7 @@ export default function TripPage() {
   console.log("Members:", members);
 
   // Loading state
-  if (isLoading || !user) {
+  if (isLoading || authLoading || !initialized || !user) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center p-6">
         <div className="w-full max-w-4xl p-6 bg-white rounded-lg shadow-md">
@@ -195,42 +199,36 @@ export default function TripPage() {
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h2 className="text-2xl font-semibold mb-4">Trip Members</h2>
 
-          {loadingMembers ? (
-            <div className="flex justify-center py-4">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-            </div>
-          ) : members.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {members.map(member => (
-                <div key={member.uid} className="flex flex-col items-center bg-gray-50 p-3 rounded-lg">
-                  <div className="relative w-16 h-16 mb-2 rounded-full overflow-hidden">
-                    {/* Use Next Image or fallback to img tag */}
-                    {member.photoURL ? (
-                      <img
-                        src={member.photoURL}
-                        alt={member.displayName}
-                        className="object-cover w-full h-full rounded-full"
-                        onError={(e) => {
-                          // Fallback to default avatar if image fails to load
-                          (e.target as HTMLImageElement).src = '/default-avatar.png';
-                        }}
-                      />
-                    ) : (
-                      <img
-                        src={DEFAULT_AVATAR}
-                        alt={member.displayName}
-                        className="object-cover w-full h-full rounded-full"
-                      />
-                    )}
+            {loadingMembers ? (
+              <div className="flex justify-center py-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+              </div>
+            ) : members.length > 0 ? (
+                <div className="flex -space-x-4">
+                {members.map(member => (
+                  <div 
+                  key={member.uid} 
+                  className="group relative"
+                  >
+                  <Avatar className="h-12 w-12 border-2 border-white rounded-full hover:z-10 hover:scale-110 transition-transform">
+                    <AvatarImage 
+                    src={member.photoURL} 
+                    alt={member.displayName} 
+                    />
+                    <AvatarFallback>
+                    {member.displayName.substring(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="absolute z-20 invisible group-hover:visible bg-white shadow-lg rounded-md p-2 min-w-[120px] -translate-x-1/2 left-1/2 top-14">
+                    <p className="font-medium text-sm">{member.displayName}</p>
+                    <p className="text-xs text-gray-500">{member.email}</p>
                   </div>
-                  <p className="font-medium text-center line-clamp-1">{member.displayName}</p>
-                  <p className="text-xs text-gray-500 text-center line-clamp-1">{member.email}</p>
+                  </div>
+                ))}
                 </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500">No members found for this trip.</p>
-          )}
+              ) : (
+                <p className="text-gray-500">No members found for this trip.</p>
+              )}
 
           {currentTrip.invitedEmails && currentTrip.invitedEmails.length > 0 && (
             <div className="mt-6">
@@ -247,18 +245,12 @@ export default function TripPage() {
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-semibold mb-4">Trip Details</h2>
-          <p className="text-gray-600 mb-6">
-            This is where the trip expenses and other details will be displayed.
-          </p>
+          <h2 className="text-2xl font-semibold mb-4">Expenses</h2>
+          
+          <ExpenseList tripId={tripId as string} 
+          tripCurrency={currentTrip.currency}
+          members={members} />
 
-          {/* Placeholder for future content */}
-          <div className="p-4 bg-blue-50 text-blue-800 rounded-lg">
-            <p>
-              The trip page is under construction. Additional features like expense tracking,
-              settlements, and member management will be added soon.
-            </p>
-          </div>
         </div>
       </div>
     </div>

@@ -19,7 +19,7 @@ export default function InvitePage() {
   const [accepting, setAccepting] = useState(false);
   const [success, setSuccess] = useState(false);
   
-  const { user } = useAuthStore();
+  const { user, loading: authLoading, initialized } = useAuthStore();
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');

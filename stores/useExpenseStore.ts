@@ -18,27 +18,40 @@ export interface ExpenseShare {
   amount: number;
 }
 
-
 export interface Expense {
   id: string;
   tripId: string;
+  name: string;
   description: string;
   amount: number;
-  paidBy: string; // User ID
-  splitBetween: ExpenseShare[];
+  currency: string;
+  paidBy?: string; // User ID
+  splitBetween?: ExpenseShare[];
   date: Timestamp;
-  category?: string;
-  notes?: string;
+  category: string;
+  createdBy: {
+    uid: string;
+    displayName: string;
+    photoURL: string;
+  };
+  createdAt?: Timestamp;
 }
 
 export interface ExpenseInput {
   tripId: string;
+  name: string;
   description: string;
   amount: number;
-  paidBy: string; // User ID
-  splitBetween: ExpenseShare[];
-  category?: string;
-  notes?: string;
+  currency: string;
+  date: string;
+  category: string;
+  paidBy?: string;
+  splitBetween?: ExpenseShare[];
+  createdBy: {
+    uid: string;
+    displayName: string;
+    photoURL: string;
+  };
 }
 
 export interface Settlement {
@@ -57,6 +70,30 @@ interface ExpenseState {
   calculateOptimizedSettlements: (tripId: string) => Promise<Settlement[]>;
 }
 
+// Helper to get expenses from localStorage
+const getStoredExpenses = (tripId: string): Expense[] => {
+  if (typeof window === 'undefined') return [];
+  
+  try {
+    const storedData = localStorage.getItem(`trip_expenses_${tripId}`);
+    return storedData ? JSON.parse(storedData) : [];
+  } catch (error) {
+    console.error("Error retrieving expenses from localStorage:", error);
+    return [];
+  }
+};
+
+// Helper to store expenses in localStorage
+const storeExpenses = (tripId: string, expenses: Expense[]) => {
+  if (typeof window === 'undefined') return;
+  
+  try {
+    localStorage.setItem(`trip_expenses_${tripId}`, JSON.stringify(expenses));
+  } catch (error) {
+    console.error("Error storing expenses in localStorage:", error);
+  }
+};
+
 export const useExpenseStore = create<ExpenseState>((set, get) => ({
   expenses: [],
   isLoading: false,
@@ -66,10 +103,14 @@ export const useExpenseStore = create<ExpenseState>((set, get) => ({
     try {
       set({ isLoading: true, error: null });
       
-      const expenseRef = await addDoc(collection(db, "expenses"), {
+      // Convert date string to Timestamp
+      const expenseToSave = {
         ...expenseInput,
-        date: serverTimestamp()
-      });
+        date: Timestamp.fromDate(new Date(expenseInput.date)),
+        createdAt: Timestamp.now()
+      };
+      
+      const expenseRef = await addDoc(collection(db, "expenses"), expenseToSave);
       
       // Fetch the created expense
       const expenseSnap = await getDoc(expenseRef);
@@ -78,10 +119,15 @@ export const useExpenseStore = create<ExpenseState>((set, get) => ({
         ...expenseSnap.data()
       } as Expense;
       
-      set(state => ({ 
-        expenses: [...state.expenses, newExpense],
+      const updatedExpenses = [newExpense, ...get().expenses];
+      
+      // Update localStorage
+      storeExpenses(expenseInput.tripId, updatedExpenses);
+      
+      set({ 
+        expenses: updatedExpenses,
         isLoading: false
-      }));
+      });
       
       return expenseRef.id;
     } catch (error) {
@@ -94,32 +140,100 @@ export const useExpenseStore = create<ExpenseState>((set, get) => ({
   },
   
   fetchExpenses: async (tripId: string) => {
-    try {
+    if (!tripId) {
+      console.error("Cannot fetch expenses: No tripId provided");
+      return;
+    }
+    
+    // First, try to load from localStorage to show data immediately
+    const cachedExpenses = getStoredExpenses(tripId);
+    if (cachedExpenses.length > 0) {
+      console.log(`ExpenseStore: Loaded ${cachedExpenses.length} expenses from cache for trip ${tripId}`);
+      set({ expenses: cachedExpenses, isLoading: true });
+    } else {
       set({ isLoading: true, error: null });
+    }
+    
+    try {
+      console.log(`ExpenseStore: Starting expense fetch for trip ${tripId}`);
       
-      const expensesQuery = query(
+      // Try the indexed query first
+      const indexedQuery = query(
         collection(db, "expenses"),
         where("tripId", "==", tripId),
         orderBy("date", "desc")
       );
       
-      const querySnapshot = await getDocs(expensesQuery);
-      const expenses: Expense[] = [];
+      let querySnapshot;
+      let expenses: Expense[] = [];
+      
+      try {
+        // Attempt to use the preferred query with indexing
+        querySnapshot = await getDocs(indexedQuery);
+      } catch (indexError) {
+        console.log("Index not ready yet, falling back to basic query");
+        
+        // If index error, fall back to a simple query without ordering
+        const fallbackQuery = query(
+          collection(db, "expenses"),
+          where("tripId", "==", tripId)
+        );
+        
+        querySnapshot = await getDocs(fallbackQuery);
+      }
       
       querySnapshot.forEach((doc) => {
+        const data = doc.data();
         expenses.push({
           id: doc.id,
-          ...doc.data()
+          ...data
         } as Expense);
       });
+      
+      // If we had to use the fallback query, manually sort the results
+      // to simulate the orderBy("date", "desc") behavior
+      expenses.sort((a, b) => {
+        const dateA = a.date instanceof Date ? a.date : a.date?.toDate?.();
+        const dateB = b.date instanceof Date ? b.date : b.date?.toDate?.();
+        
+        if (!dateA || !dateB) return 0;
+        return dateB.getTime() - dateA.getTime(); // Descending order
+      });
+      
+      console.log(`ExpenseStore: Fetched ${expenses.length} expenses for trip ${tripId}`);
+      
+      // Store expenses in localStorage for persistence
+      storeExpenses(tripId, expenses);
       
       set({ expenses, isLoading: false });
     } catch (error) {
       console.error("Error fetching expenses:", error);
-      set({ 
-        error: error instanceof Error ? error.message : "Failed to fetch expenses",
-        isLoading: false
-      });
+      
+      // Check specifically for the index-related error
+      const errorMsg = error instanceof Error ? error.message : "Failed to fetch expenses";
+      const isIndexError = errorMsg.includes("requires an index") || 
+                           errorMsg.includes("FAILED_PRECONDITION") ||
+                           errorMsg.includes("https://console.firebase.google.com");
+      
+      // If we have cached data, keep using it rather than showing an error
+      if (cachedExpenses.length > 0) {
+        console.log(`ExpenseStore: Network fetch failed, using ${cachedExpenses.length} cached expenses`);
+        set({ 
+          error: isIndexError ? 
+            "Firebase index is being created. This may take a few minutes. Your data will appear soon." : 
+            null,
+          isLoading: false,
+          expenses: cachedExpenses
+        });
+      } else {
+        set({ 
+          error: isIndexError ? 
+            "Firebase index is being created. This may take a few minutes. Please try again soon." : 
+            errorMsg,
+          isLoading: false,
+          expenses: [] // Reset expenses on error when no cache exists
+        });
+      }
     }
   },
   
@@ -134,7 +248,10 @@ export const useExpenseStore = create<ExpenseState>((set, get) => ({
       const debts: Record<string, Record<string, number>> = {};
       
       expenses.forEach(expense => {
-        const paidBy = expense.paidBy;
+        const paidBy = expense.paidBy || expense.createdBy.uid;
+        
+        // Skip expenses without split information
+        if (!expense.splitBetween || expense.splitBetween.length === 0) return;
         
         expense.splitBetween.forEach(share => {
           const owedBy = share.userId;
@@ -192,8 +309,13 @@ export const useExpenseStore = create<ExpenseState>((set, get) => ({
       const balances: Record<string, number> = {};
       
       expenses.forEach(expense => {
+        const paidBy = expense.paidBy || expense.createdBy.uid;
+        
         // Add what the payer paid
-        balances[expense.paidBy] = (balances[expense.paidBy] || 0) + expense.amount;
+        balances[paidBy] = (balances[paidBy] || 0) + expense.amount;
+        
+        // Skip expenses without split information
+        if (!expense.splitBetween || expense.splitBetween.length === 0) return;
         
         // Subtract what each person owes
         expense.splitBetween.forEach(share => {

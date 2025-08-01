@@ -7,31 +7,27 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import Link from 'next/link';
 
 export default function TripsPage() {
-  const { trips, isLoading, error, fetchTrips } = useTripStore();
-  const { user, initializeAuth } = useAuthStore();
+  const { trips, isLoading: tripsLoading, error, fetchTrips } = useTripStore();
+  const { user, loading: authLoading, initialized } = useAuthStore();
   const router = useRouter();
-
-  // Initialize auth on page load  
-  useEffect(() => {
-    initializeAuth();
-  }, [initializeAuth]);
 
   // Fetch trips when user is authenticated
   useEffect(() => {
-    if (user) {
+    if (user && initialized) {
       fetchTrips(user.uid);
     }
-  }, [user, fetchTrips]);
+  }, [user, fetchTrips, initialized]);
 
-  // Redirect to login if not authenticated
+  // Redirect to login if not authenticated and auth is initialized
   useEffect(() => {
-    if (!user && !isLoading) {
+    if (!user && !authLoading && initialized) {
+      console.log("User not authenticated, redirecting to login");
       router.push('/login?redirect=/trips');
     }
-  }, [user, isLoading, router]);
+  }, [user, authLoading, initialized, router]);
 
   // Loading state
-  if (isLoading || !user) {
+  if (tripsLoading || authLoading || !initialized || !user) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center p-6">
         <div className="w-full max-w-4xl p-6 bg-white rounded-lg shadow-md">

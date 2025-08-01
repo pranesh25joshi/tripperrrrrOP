@@ -8,8 +8,8 @@ import Link from 'next/link';
 // import Header from '@/app/components/Header';
 
 export default function Page() {
-  const { createTrip, isLoading, error } = useTripStore();
-  const { user, initializeAuth } = useAuthStore();
+  const { createTrip, isLoading: tripLoading, error } = useTripStore();
+  const { user, loading: authLoading, initialized } = useAuthStore();
   const router = useRouter();
   
   // Form state
@@ -22,17 +22,13 @@ export default function Page() {
   });
   const [formError, setFormError] = useState('');
 
-  // Initialize auth on page load
+  // Redirect to login if not authenticated and auth is initialized
   useEffect(() => {
-    initializeAuth();
-  }, [initializeAuth]);
-
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!user && !isLoading) {
+    if (!user && !authLoading && initialized) {
+      console.log("User not authenticated, redirecting to login");
       router.push('/login?redirect=/trips/new');
     }
-  }, [user, isLoading, router]);
+  }, [user, authLoading, initialized, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -190,10 +186,10 @@ export default function Page() {
             <div className="pt-4">
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={tripLoading}
                 className="w-full px-4 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
               >
-                {isLoading ? (
+                {tripLoading ? (
                   <span className="flex items-center justify-center">
                     <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
