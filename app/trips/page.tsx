@@ -92,12 +92,12 @@ export default function TripsPage() {
                   )}
                   
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">
+                    <span className="text-black">
                       {trip.startDate && new Date(trip.startDate).toLocaleDateString()}
                       {trip.startDate && trip.endDate && ' - '}
                       {trip.endDate && new Date(trip.endDate).toLocaleDateString()}
                     </span>
-                    <span className="font-medium">{trip.currency}</span>
+                    <span className="font-medium text-black">{trip.currency}</span>
                   </div>
                 </div>
               </Link>
