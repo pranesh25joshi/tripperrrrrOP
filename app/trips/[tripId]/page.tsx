@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTripStore } from '@/stores/useTripStore';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useExpenseStore } from '@/stores/useExpenseStore';
 import Link from 'next/link';
 import InviteForm from '@/app/components/InviteForm';
 import Image from 'next/image';
@@ -11,6 +12,7 @@ import { db } from '@/firebase/firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import ExpenseList from '@/app/components/ExpenseList';
+import SettlementSummary from '@/app/components/SettlementSummary';
 
 // Interface for member data
 interface MemberData {
@@ -34,11 +36,37 @@ export default function TripPage() {
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [members, setMembers] = useState<MemberData[]>([]);
   const [loadingMembers, setLoadingMembers] = useState(false);
+  const [endingTrip, setEndingTrip] = useState(false);
 
   const { tripId } = useParams<{ tripId: string }>();
-  const { currentTrip, isLoading, error, fetchTripById } = useTripStore();
+  const { currentTrip, isLoading, error, fetchTripById, endTrip } = useTripStore();
   const { user, loading: authLoading, initialized } = useAuthStore();
+  const { fetchExpenses } = useExpenseStore();
   const router = useRouter();
+  
+  const handleEndTrip = async () => {
+    if (!window.confirm("Are you sure you want to end this trip? This will finalize all expenses and calculate settlements.")) {
+      return;
+    }
+    
+    setEndingTrip(true);
+    try {
+      // First, make sure expenses are loaded for the trip
+      console.log("Loading expenses before ending trip");
+      await fetchExpenses(tripId as string);
+      
+      // Then end the trip and update trip data
+      await endTrip(tripId as string);
+      
+      // Refresh trip data
+      await fetchTripById(tripId as string);
+    } catch (error) {
+      console.error("Error ending trip:", error);
+      alert("Failed to end trip. Please try again.");
+    } finally {
+      setEndingTrip(false);
+    }
+  };
 
   // Fetch trip data when user is authenticated
   useEffect(() => {
@@ -55,6 +83,14 @@ export default function TripPage() {
       router.push(`/login?redirect=/trips/${tripId}`);
     }
   }, [user, authLoading, initialized, router, tripId]);
+  
+  // Preload expenses for ended trips to ensure settlement calculations work
+  useEffect(() => {
+    if (currentTrip && currentTrip.status === 'ended' && tripId) {
+      console.log("Preloading expenses for ended trip:", tripId);
+      fetchExpenses(tripId as string);
+    }
+  }, [currentTrip?.status, tripId, fetchExpenses]);
 
   // Fetch member data when trip data is loaded
   useEffect(() => {
@@ -148,12 +184,28 @@ export default function TripPage() {
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold text-black">{currentTrip.name}</h1>
 
-            <button
-              onClick={() => setShowInviteForm(!showInviteForm)}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-            >
-              {showInviteForm ? 'Hide Invite Form' : 'Invite People'}
-            </button>
+            <div className="flex space-x-3">
+              {/* Only show invite button if trip is active */}
+              {(!currentTrip.status || currentTrip.status === 'active') && (
+                <button
+                  onClick={() => setShowInviteForm(!showInviteForm)}
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                >
+                  {showInviteForm ? 'Hide Invite Form' : 'Invite People'}
+                </button>
+              )}
+              
+              {/* Only show end trip button if trip is active and current user is creator */}
+              {(!currentTrip.status || currentTrip.status === 'active') && 
+               currentTrip.createdBy === user?.uid && (
+                <button
+                  onClick={() => handleEndTrip()}
+                  className="px-4 py-2 bg-amber-500 text-white rounded hover:bg-amber-600 transition"
+                >
+                  End Trip & Settle Up
+                </button>
+              )}
+            </div>
           </div>
 
           {currentTrip.description && (
@@ -244,14 +296,55 @@ export default function TripPage() {
           )}
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-semibold mb-4">Expenses</h2>
-          
-          <ExpenseList tripId={tripId as string} 
-          tripCurrency={currentTrip.currency}
-          members={members} />
-
-        </div>
+        {/* Ended Trip - Show Settlements */}
+        {currentTrip.status === 'ended' ? (
+          <>
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-semibold">Final Settlements</h2>
+                <div className="text-sm py-1 px-3 bg-amber-100 text-amber-800 rounded-full">
+                  Trip Ended on {currentTrip.endDate ? new Date(currentTrip.endDate).toLocaleDateString() : 'Unknown date'}
+                </div>
+              </div>
+              
+              <SettlementSummary 
+                tripId={tripId as string} 
+                trip={currentTrip} 
+              />
+            </div>
+            
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-2xl font-semibold mb-4">Expense History</h2>
+              
+              <ExpenseList 
+                tripId={tripId as string}
+                tripCurrency={currentTrip.currency}
+                members={members}
+                readOnly={true}
+              />
+            </div>
+          </>
+        ) : (
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-2xl font-semibold mb-4">Expenses</h2>
+            
+            <ExpenseList 
+              tripId={tripId as string} 
+              tripCurrency={currentTrip.currency}
+              members={members} 
+            />
+          </div>
+        )}
+        
+        {/* Show pending end trip while loading */}
+        {endingTrip && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
+              <p className="text-lg font-medium">Ending trip and calculating settlements...</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

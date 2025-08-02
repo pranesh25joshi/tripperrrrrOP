@@ -1,81 +1,263 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { FiPlus, FiLogOut, FiHome, FiMap, FiUser, FiMenu, FiX } from 'react-icons/fi';
 
 export default function Header() {
   const { user, logout } = useAuthStore();
   const router = useRouter();
+  const pathname = usePathname();
   const [showMenu, setShowMenu] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const avatarRef = useRef<HTMLButtonElement>(null);
+
+  // Handle scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        menuRef.current && 
+        avatarRef.current && 
+        !menuRef.current.contains(event.target as Node) && 
+        !avatarRef.current.contains(event.target as Node)
+      ) {
+        setShowMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleLogout = async () => {
     await logout();
+    setShowMenu(false);
     router.push('/login');
   };
 
   return (
-    <header className="bg-white shadow-sm">
+    <header 
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled ? 'bg-white shadow-md py-2' : 'bg-white/80 backdrop-blur-lg py-4'
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+        <div className="flex justify-between items-center">
+          {/* Logo */}
           <div className="flex items-center">
-            <Link href="/" className="flex-shrink-0 flex items-center">
-              <span className="font-bold text-xl text-blue-600">Trip Sliptos</span>
+            <Link 
+              href="/" 
+              className="group flex items-center space-x-2 transition-transform duration-300 hover:scale-105"
+            >
+              <div className="bg-blue-600 text-white p-2 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                  <path d="M2.25 2.25a.75.75 0 0 0 0 1.5h1.386c.17 0 .318.114.362.278l2.558 9.592a3.752 3.752 0 0 0-2.806 3.63c0 .414.336.75.75.75h15.75a.75.75 0 0 0 0-1.5H5.378A2.25 2.25 0 0 1 7.5 15h11.218a.75.75 0 0 0 .674-.421 60.358 60.358 0 0 0 2.96-7.228.75.75 0 0 0-.525-.965A60.864 60.864 0 0 0 5.68 4.509l-.232-.867A1.875 1.875 0 0 0 3.636 2.25H2.25Z" />
+                  <path d="M3.75 20.25a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM16.5 20.25a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
+                </svg>
+              </div>
+              <span className="font-bold text-xl tracking-tight text-gray-900 group-hover:text-blue-600 transition-colors">
+                Trip Sliptos
+              </span>
             </Link>
           </div>
 
-          <div className="flex items-center">
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-1">
+            <Link 
+              href="/trips" 
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                pathname?.startsWith('/trips') 
+                  ? 'text-blue-600 bg-blue-50' 
+                  : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+              }`}
+            >
+              My Trips
+            </Link>
+            
             {user ? (
-              <div className="relative">
-                <button 
+              <div className="relative ml-4">
+                <button
+                  ref={avatarRef}
                   onClick={() => setShowMenu(!showMenu)}
-                  className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 focus:outline-none"
+                  className="flex items-center space-x-3 bg-gray-50 hover:bg-gray-100 rounded-full pl-3 pr-2 py-1.5 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  aria-expanded={showMenu}
+                  aria-haspopup="true"
                 >
-                  {user.photoURL ? (
-                    <Image 
+                  <span className="text-sm font-medium text-gray-700 max-w-[100px] truncate">
+                    {user.displayname || 'User'}
+                  </span>
+                  <Avatar className="h-8 w-8 ring-2 ring-white">
+                    <AvatarImage
                       src={user.photoURL}
                       alt={user.displayname || "User"}
-                      width={32}
-                      height={32}
-                      className="rounded-full"
-                      onError={(e) => {
-                        // Fallback for broken images
-                        const target = e.target as HTMLImageElement;
-                        target.onerror = null;
-                        target.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2364748B"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>`;
-                      }}
                     />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
-                      {user.displayname?.charAt(0).toUpperCase() || 'U'}
-                    </div>
-                  )}
-                  <span>{user.displayname}</span>
+                    <AvatarFallback className="bg-blue-600 text-white">
+                      {user.displayname?.substring(0, 2).toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
                 </button>
 
+                {/* Dropdown Menu */}
                 {showMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200">
-                    <Link href="/trips" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                      My Trips
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Sign out
-                    </button>
+                  <div 
+                    ref={menuRef}
+                    className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg py-2 z-10 border border-gray-100 animate-in fade-in slide-in-from-top-5 duration-200"
+                  >
+                    <div className="px-4 py-2 border-b border-gray-100">
+                      <p className="text-sm font-medium text-gray-900">{user.displayname}</p>
+                      <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                    </div>
+                    <div className="py-1">
+                      <Link 
+                        href="/trips" 
+                        className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        onClick={() => setShowMenu(false)}
+                      >
+                        <FiMap className="mr-3 text-gray-500" />
+                        My Trips
+                      </Link>
+                      <Link
+                        href="/trips/new"
+                        className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        onClick={() => setShowMenu(false)}
+                      >
+                        <FiPlus className="mr-3 text-gray-500" />
+                        New Trip
+                      </Link>
+                    </div>
+                    <div className="py-1 border-t border-gray-100">
+                      <button
+                        onClick={handleLogout}
+                        className="flex w-full items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <FiLogOut className="mr-3" />
+                        Sign out
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
             ) : (
-              <Link href="/login" className="text-blue-600 hover:text-blue-800">
-                Sign In
+              <div className="flex items-center space-x-3">
+                <Link 
+                  href="/login" 
+                  className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-gray-50"
+                >
+                  Log in
+                </Link>
+                <Link 
+                  href="/login" 
+                  className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm hover:shadow"
+                >
+                  Get Started
+                </Link>
+              </div>
+            )}
+          </nav>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center">
+            {user && (
+              <Avatar className="h-8 w-8 mr-3">
+                <AvatarImage
+                  src={user.photoURL}
+                  alt={user.displayname || "User"}
+                />
+                <AvatarFallback className="bg-blue-600 text-white">
+                  {user.displayname?.substring(0, 2).toUpperCase() || 'U'}
+                </AvatarFallback>
+              </Avatar>
+            )}
+            <button 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-lg text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {mobileMenuOpen ? (
+                <FiX className="h-6 w-6" />
+              ) : (
+                <FiMenu className="h-6 w-6" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Navigation */}
+        {mobileMenuOpen && (
+          <div className="md:hidden py-3 border-t border-gray-100 mt-3 animate-in slide-in-from-top duration-300">
+            <Link 
+              href="/trips" 
+              className={`block px-4 py-3 rounded-lg text-base font-medium transition-colors ${
+                pathname?.startsWith('/trips') 
+                  ? 'text-blue-600 bg-blue-50' 
+                  : 'text-gray-700 hover:bg-gray-50'
+              }`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <div className="flex items-center">
+                <FiMap className="mr-3" />
+                My Trips
+              </div>
+            </Link>
+            
+            {user ? (
+              <>
+                <Link 
+                  href="/trips/new" 
+                  className="block px-4 py-3 rounded-lg text-base font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <div className="flex items-center">
+                    <FiPlus className="mr-3" />
+                    New Trip
+                  </div>
+                </Link>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    handleLogout();
+                  }}
+                  className="block w-full text-left px-4 py-3 rounded-lg text-base font-medium text-red-600 hover:bg-red-50 transition-colors"
+                >
+                  <div className="flex items-center">
+                    <FiLogOut className="mr-3" />
+                    Sign out
+                  </div>
+                </button>
+              </>
+            ) : (
+              <Link 
+                href="/login" 
+                className="block px-4 py-3 rounded-lg text-base font-medium text-blue-600 hover:bg-blue-50 transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <div className="flex items-center">
+                  <FiUser className="mr-3" />
+                  Sign In
+                </div>
               </Link>
             )}
           </div>
-        </div>
+        )}
       </div>
     </header>
   );

@@ -1,29 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
+import Header from "./components/Header";
 
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="w-full px-4 py-5 sm:px-8 shadow-sm bg-white dark:bg-gray-900">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 text-blue-600">
-              <path d="M2.25 2.25a.75.75 0 0 0 0 1.5h1.386c.17 0 .318.114.362.278l2.558 9.592a3.752 3.752 0 0 0-2.806 3.63c0 .414.336.75.75.75h15.75a.75.75 0 0 0 0-1.5H5.378A2.25 2.25 0 0 1 7.5 15h11.218a.75.75 0 0 0 .674-.421 60.358 60.358 0 0 0 2.96-7.228.75.75 0 0 0-.525-.965A60.864 60.864 0 0 0 5.68 4.509l-.232-.867A1.875 1.875 0 0 0 3.636 2.25H2.25Z" />
-              <path d="M3.75 20.25a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM16.5 20.25a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
-            </svg>
-            <span className="font-bold text-xl sm:text-2xl">Trip Sliptos</span>
-          </div>
-          <nav className="hidden sm:flex space-x-6 items-center text-sm">
-            <Link href="/trips" className="hover:text-blue-600 transition-colors">My Trips</Link>
-            <Link href="/login" className="bg-blue-600 hover:bg-blue-700 transition-colors text-white px-4 py-2 rounded-lg">
-              Get Started
-            </Link>
-          </nav>
-          <Link href="/login" className="sm:hidden bg-blue-600 hover:bg-blue-700 transition-colors text-white px-3 py-1.5 text-sm rounded-lg">
-            Login
-          </Link>
-        </div>
-      </header>
+      <Header />
+      <div className="flex-1 pt-24">
+        {/* This padding ensures content appears below the fixed header */}
       
       <main className="flex-1 flex flex-col items-center px-4 pt-12 pb-20 sm:pt-20 max-w-7xl mx-auto w-full">
 
@@ -142,6 +126,7 @@ export default function Home() {
           </p>
         </div>
       </footer>
+      </div>
     </div>
   );
 }

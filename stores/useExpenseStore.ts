@@ -303,8 +303,8 @@ export const useExpenseStore = create<ExpenseState>((set, get) => ({
     try {
       set({ isLoading: true, error: null });
       
-      await get().fetchExpenses(tripId);
-      const expenses = get().expenses;
+      // Use the current expenses from state without fetching again
+      const expenses = get().expenses.filter(expense => expense.tripId === tripId);
       
       const balances: Record<string, number> = {};
       

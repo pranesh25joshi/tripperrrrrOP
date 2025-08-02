@@ -25,6 +25,8 @@ export interface Trip {
   createdAt: Timestamp;
   members: string[]; // Array of user IDs
   invitedEmails?: string[]; // Emails invited but not joined yet
+  status?: 'active' | 'ended'; // Trip status
+  endedAt?: Timestamp; // When the trip was ended
 }
 
 export interface TripInput {
@@ -46,6 +48,7 @@ interface TripState {
   fetchTripById: (tripId: string) => Promise<void>;
   inviteToTrip: (tripId: string, emails: string[]) => Promise<void>;
   sendTripInvitations: (tripId: string, emails: string[], senderName: string, senderEmail: string) => Promise<void>;
+  endTrip: (tripId: string) => Promise<void>;
 }
 
 export const useTripStore = create<TripState>((set, get) => ({
@@ -220,6 +223,41 @@ export const useTripStore = create<TripState>((set, get) => ({
       console.error("Error sending trip invitations:", error);
       set({ 
         error: error instanceof Error ? error.message : "Failed to send trip invitations",
+        isLoading: false
+      });
+    }
+  },
+  
+  endTrip: async (tripId: string) => {
+    try {
+      set({ isLoading: true, error: null });
+      
+      const currentDate = new Date();
+      
+      // Update trip status in Firestore
+      const tripRef = doc(db, "trips", tripId);
+      await updateDoc(tripRef, {
+        status: 'ended',
+        endDate: currentDate
+      });
+      
+      // Update local state
+      set(state => ({
+        currentTrip: state.currentTrip && state.currentTrip.id === tripId
+          ? { ...state.currentTrip, status: 'ended', endDate: currentDate }
+          : state.currentTrip,
+        trips: state.trips.map(trip => 
+          trip.id === tripId
+            ? { ...trip, status: 'ended', endDate: currentDate }
+            : trip
+        ),
+        isLoading: false
+      }));
+      
+    } catch (error) {
+      console.error("Error ending trip:", error);
+      set({ 
+        error: error instanceof Error ? error.message : "Failed to end trip",
         isLoading: false
       });
     }

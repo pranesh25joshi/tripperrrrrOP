@@ -32,8 +32,9 @@ interface TripMember {
 
 interface ExpenseListProps {
   tripId: string;
-  tripCurrency: string;
-  members: TripMember[];
+  tripCurrency?: string;
+  members?: TripMember[];
+  readOnly?: boolean;
 }
 
 const categoryIcons: Record<string, React.ReactNode> = {
@@ -49,7 +50,12 @@ const categoryIcons: Record<string, React.ReactNode> = {
   other: <FaMoneyBillWave className="text-gray-500" />
 };
 
-export default function ExpenseList({ tripId, tripCurrency, members }: ExpenseListProps) {
+export default function ExpenseList({ 
+  tripId, 
+  tripCurrency = 'USD', 
+  members = [], 
+  readOnly = false 
+}: ExpenseListProps) {
   const { expenses, isLoading, error, fetchExpenses } = useExpenseStore();
   const [showAddModal, setShowAddModal] = useState(false);
   const [localLoading, setLocalLoading] = useState(true);
@@ -196,18 +202,20 @@ export default function ExpenseList({ tripId, tripCurrency, members }: ExpenseLi
       )}
       
       {/* Add Expense Button - Fixed at bottom */}
-      <div className="fixed bottom-6 left-0 w-full flex justify-center">
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="h-14 w-14 bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition"
-          aria-label="Add expense"
-        >
-          <FaPlus className="text-xl" />
-        </button>
-      </div>
+      {!readOnly && (
+        <div className="fixed bottom-6 left-0 w-full flex justify-center">
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="h-14 w-14 bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition"
+            aria-label="Add expense"
+          >
+            <FaPlus className="text-xl" />
+          </button>
+        </div>
+      )}
       
       {/* Add Expense Modal */}
-      {showAddModal && (
+      {!readOnly && showAddModal && (
         <AddExpenseModal
           tripId={tripId}
           tripCurrency={tripCurrency}
