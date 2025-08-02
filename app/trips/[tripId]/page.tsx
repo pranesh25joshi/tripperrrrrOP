@@ -299,10 +299,10 @@ export default function TripPage() {
         {/* Ended Trip - Show Settlements */}
         {currentTrip.status === 'ended' ? (
           <>
-            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-semibold">Final Settlements</h2>
-                <div className="text-sm py-1 px-3 bg-amber-100 text-amber-800 rounded-full">
+            <div className="bg-[var(--card)] rounded-lg shadow-md p-4 sm:p-6 mb-6 overflow-hidden">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+                <h2 className="text-xl sm:text-2xl font-semibold">Final Settlements</h2>
+                <div className="text-sm py-1 px-3 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full self-start sm:self-auto whitespace-nowrap">
                   Trip Ended on {currentTrip.endDate ? new Date(currentTrip.endDate).toLocaleDateString() : 'Unknown date'}
                 </div>
               </div>
@@ -313,8 +313,8 @@ export default function TripPage() {
               />
             </div>
             
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-semibold mb-4">Expense History</h2>
+            <div className="bg-[var(--card)] rounded-lg shadow-md p-4 sm:p-6 overflow-hidden">
+              <h2 className="text-xl sm:text-2xl font-semibold mb-4">Expense History</h2>
               
               <ExpenseList 
                 tripId={tripId as string}
@@ -325,8 +325,8 @@ export default function TripPage() {
             </div>
           </>
         ) : (
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-semibold mb-4">Expenses</h2>
+          <div className="bg-[var(--card)] rounded-lg shadow-md p-4 sm:p-6 overflow-hidden">
+            <h2 className="text-xl sm:text-2xl font-semibold mb-4">Expenses</h2>
             
             <ExpenseList 
               tripId={tripId as string} 

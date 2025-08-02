@@ -169,6 +169,7 @@ export default function AddExpenseModal({ tripId, tripCurrency, onClose }: AddEx
               >
                 <option value={tripCurrency}>{tripCurrency}</option>
                 <option value="USD">USD</option>
+                <option value="INR">INR</option>
                 <option value="EUR">EUR</option>
                 <option value="GBP">GBP</option>
                 {/* Add more currencies as needed */}
