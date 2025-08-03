@@ -51,7 +51,7 @@ export default function SettlementSummary({ tripId, trip }: SettlementProps) {
                 if (userDoc.exists()) {
                   const userData = userDoc.data();
                   userMap[memberId] = {
-                    displayName: userData.displayName || userData.email?.split('@')[0] || "Unknown User",
+                    displayName: userData.displayname || userData.email?.split('@')[0] || "Unknown User",
                     photoURL: userData.photoURL || '',
                     email: userData.email || ''
                   };

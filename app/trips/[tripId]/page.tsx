@@ -116,7 +116,7 @@ export default function TripPage() {
               const userData = userDoc.data();
               return {
                 uid: memberId,
-                displayName: userData.displayName || userData.email?.split('@')[0] || 'Unknown',
+                displayName: userData.displayname || userData.email?.split('@')[0] || 'Unknown',
                 photoURL: userData.photoURL || '/default-avatar.png',
                 email: userData.email || ''
               };
