@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useTripStore } from '@/stores/useTripStore';
+import { toast } from "sonner";
 
 interface InviteFormProps {
   tripId: string;
@@ -58,6 +59,11 @@ export default function InviteForm({ tripId, onClose }: InviteFormProps) {
         user.displayname || 'Trip Member',
         user.email
       );
+      
+      toast.success(`Invitations sent!`, {
+        description: `${emailList.length} ${emailList.length === 1 ? 'person' : 'people'} invited to join your trip.`,
+        position: "top-right"
+      });
       
       setSuccessMessage(`Invitations sent to ${emailList.join(', ')}`);
       setEmails('');

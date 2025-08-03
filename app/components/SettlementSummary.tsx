@@ -6,6 +6,7 @@ import { Trip } from '@/stores/useTripStore';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/firebase/firebaseConfig';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { toast } from "sonner";
 
 interface SettlementProps {
   tripId: string;
@@ -124,6 +125,17 @@ export default function SettlementSummary({ tripId, trip }: SettlementProps) {
           setSettlements(displaySettlements);
           lastCalculatedTripRef.current = tripId;
           setCalculationComplete(true);
+          
+          // Only show a toast if there are settlements needed
+          if (displaySettlements.length > 0) {
+            toast.info(
+              `${displaySettlements.length} ${displaySettlements.length === 1 ? 'settlement' : 'settlements'} calculated`,
+              {
+                description: "The optimal settlements have been calculated to help everyone settle up.",
+                position: "top-right"
+              }
+            );
+          }
         } catch (error) {
           console.error("Error calculating settlements:", error);
         } finally {

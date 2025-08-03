@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useExpenseStore } from '@/stores/useExpenseStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { FaTimes } from 'react-icons/fa';
+import { toast } from "sonner";
 
 interface AddExpenseModalProps {
   tripId: string;
@@ -77,6 +78,11 @@ export default function AddExpenseModal({ tripId, tripCurrency, onClose }: AddEx
           displayName: user.displayname,
           photoURL: user.photoURL
         }
+      });
+      
+      toast.success(`Expense "${formData.name}" added!`, {
+        description: `${formData.currency} ${Number(formData.amount).toFixed(2)} added to trip.`,
+        position: "top-right"
       });
       
       onClose();

@@ -5,6 +5,7 @@ import { useExpenseStore, ExpenseShare } from '@/stores/useExpenseStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { FaTimes, FaUserFriends, FaEquals, FaDivide } from 'react-icons/fa';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { toast } from "sonner";
 
 interface TripMember {
   uid: string;
@@ -211,6 +212,11 @@ export default function AddExpenseModal({ tripId, tripCurrency, members, onClose
           displayName: user.displayname,
           photoURL: user.photoURL
         }
+      });
+      
+      toast.success(`Expense "${formData.name}" added!`, {
+        description: `${formData.currency} ${Number(formData.amount).toFixed(2)} added to trip.`,
+        position: "top-right"
       });
       
       onClose();

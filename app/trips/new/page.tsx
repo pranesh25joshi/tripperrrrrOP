@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useTripStore } from '@/stores/useTripStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import Link from 'next/link';
+import { toast } from "sonner";
 // import Header from '@/app/components/Header';
 
 export default function Page() {
@@ -66,6 +67,10 @@ export default function Page() {
 
       // Redirect to the new trip page
       if (tripId) {
+        toast.success(`Trip "${formData.name}" created successfully!`, {
+          description: "You can now add expenses and invite people.",
+          position: "top-right"
+        });
         router.push(`/trips/${tripId}`);
       }
     } catch (error) {

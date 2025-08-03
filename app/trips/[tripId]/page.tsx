@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useTripStore } from '@/stores/useTripStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useExpenseStore } from '@/stores/useExpenseStore';
+import { toast } from "sonner";
 import Link from 'next/link';
 import InviteForm from '@/app/components/InviteForm';
 import Image from 'next/image';
@@ -66,6 +67,12 @@ export default function TripPage() {
       
       // Then end the trip and update trip data
       await endTrip(tripId as string);
+      
+      // Add toast notification for successful trip ending
+      toast.success(`Trip ended successfully!`, {
+        description: "All expenses are finalized. View the final settlements below.",
+        position: "top-right"
+      });
       
       // Refresh trip data
       await fetchTripById(tripId as string);
