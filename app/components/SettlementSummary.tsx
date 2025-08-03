@@ -167,7 +167,6 @@ export default function SettlementSummary({ tripId, trip }: SettlementProps) {
   
   return (
     <div className="space-y-4 w-full">
-      <h3 className="text-xl font-medium">Final Settlements</h3>
       <p className="text-sm text-[var(--muted-foreground)] mb-4">
         These are the optimized payments needed to settle all expenses.
       </p>

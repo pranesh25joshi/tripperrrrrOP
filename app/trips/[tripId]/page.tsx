@@ -327,20 +327,6 @@ export default function TripPage() {
                     >
                       <p className="font-medium text-sm mb-1">{member.displayName}</p>
                       <p className="text-xs text-gray-500">{member.email}</p>
-                      {activeMember === member.uid && (
-                        <button 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveMember(null);
-                          }}
-                          className="absolute top-1 right-1 text-gray-400 hover:text-gray-600"
-                          aria-label="Close details"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                          </svg>
-                        </button>
-                      )}
                     </div>
                   </div>
                 ))}
@@ -368,9 +354,9 @@ export default function TripPage() {
         {currentTrip.status === 'ended' ? (
           <>
             <Card className="mb-6 overflow-hidden">
-              <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <CardTitle>Final Settlements</CardTitle>
-                <div className="text-sm py-1 px-3 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full self-start sm:self-auto whitespace-nowrap">
+              <CardHeader className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-2">
+                <CardTitle className=''>Final Settlements</CardTitle>
+                <div className="text-sm py-1 px-3 -ml-3 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full self-start sm:self-auto whitespace-nowrap">
                   Trip Ended on {currentTrip.endDate ? new Date(currentTrip.endDate).toLocaleDateString() : 'Unknown date'}
                 </div>
               </CardHeader>
