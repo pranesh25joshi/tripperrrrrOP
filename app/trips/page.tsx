@@ -34,14 +34,47 @@ export default function TripsPage() {
     }
   }, [user, authLoading, initialized, router]);
 
-  // Loading state
+  // Loading state with skeleton UI
   if (tripsLoading || authLoading || !initialized || !user) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center p-6">
-        <div className="w-full max-w-4xl p-6 bg-white rounded-lg shadow-md">
-          <h1 className="text-2xl font-bold mb-4 text-center">Loading Trips...</h1>
-          <div className="flex justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="min-h-screen flex flex-col p-6">
+        <div className="w-full max-w-6xl mx-auto">
+          {/* Header skeleton */}
+          <div className="flex justify-between items-center mb-6">
+            <div className="h-8 w-32 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-9 w-28 rounded bg-gray-200 animate-pulse"></div>
+          </div>
+
+          {/* Trips grid skeleton */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <div key={i} className="bg-white rounded-xl shadow-md overflow-hidden">
+                <div className="p-5 border-b">
+                  <div className="h-6 w-3/4 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-4 w-1/2 bg-gray-100 rounded"></div>
+                </div>
+                <div className="p-5">
+                  <div className="flex justify-between mb-4">
+                    <div className="space-y-2">
+                      <div className="h-4 w-20 bg-gray-100 rounded"></div>
+                      <div className="h-5 w-16 bg-gray-200 rounded"></div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="h-4 w-20 bg-gray-100 rounded"></div>
+                      <div className="h-5 w-16 bg-gray-200 rounded"></div>
+                    </div>
+                  </div>
+                  <div className="flex -space-x-2">
+                    {[1, 2, 3].map(j => (
+                      <div key={j} className="h-8 w-8 rounded-full bg-gray-200 border-2 border-white"></div>
+                    ))}
+                  </div>
+                </div>
+                <div className="p-3 bg-gray-50 flex justify-end">
+                  <div className="h-8 w-20 bg-gray-200 rounded"></div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

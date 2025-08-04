@@ -156,15 +156,51 @@ export default function SettlementSummary({ tripId, trip }: SettlementProps) {
   
   if (isLoadingMembers || calculationInProgress || isLoading) {
     return (
-      <div className="py-4 w-full">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--primary)] mx-auto"></div>
-        <p className="text-center mt-2 text-[var(--muted-foreground)]">
-          {isLoadingMembers 
-            ? 'Loading member data...' 
-            : calculationInProgress 
-              ? 'Calculating final settlements...'
-              : 'Processing expenses...'}
-        </p>
+      <div className="w-full animate-pulse">
+        {/* Settlement title skeleton */}
+        <div className="mb-4 flex justify-between items-center">
+          <div className="h-5 w-36 bg-gray-200 rounded"></div>
+          <div className="h-4 w-24 bg-gray-100 rounded"></div>
+        </div>
+
+        {/* Settlement entries skeleton */}
+        <div className="space-y-3">
+          {[1, 2, 3].map((item) => (
+            <div key={item} className="rounded-lg border border-gray-200 p-3 bg-white">
+              {/* Desktop view skeleton */}
+              <div className="hidden sm:flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="h-10 w-10 rounded-full bg-gray-200"></div>
+                  <div className="space-y-2">
+                    <div className="h-4 w-20 bg-gray-200 rounded"></div>
+                    <div className="h-3 w-12 bg-gray-100 rounded"></div>
+                  </div>
+                </div>
+                <div className="h-5 w-16 bg-gray-200 rounded"></div>
+                <div className="flex items-center gap-2 flex-row-reverse">
+                  <div className="h-10 w-10 rounded-full bg-gray-200"></div>
+                  <div className="space-y-2">
+                    <div className="h-4 w-20 bg-gray-200 rounded"></div>
+                    <div className="h-3 w-12 bg-gray-100 rounded"></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mobile view skeleton */}
+              <div className="sm:hidden">
+                <div className="flex justify-center items-center gap-4 mb-2">
+                  <div className="h-12 w-12 rounded-full bg-gray-200"></div>
+                  <div className="flex flex-col items-center">
+                    <div className="h-5 w-14 bg-gray-200 rounded mb-1"></div>
+                    <div className="w-8 h-4 bg-gray-100 rounded-full"></div>
+                  </div>
+                  <div className="h-12 w-12 rounded-full bg-gray-200"></div>
+                </div>
+                <div className="h-3 w-full bg-gray-100 rounded mx-auto mt-2"></div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

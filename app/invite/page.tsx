@@ -96,19 +96,32 @@ function InviteContent() {
     }
   };
 
-  // Render loading state
+  // Render skeleton loading state
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
-        <div className="w-full max-w-md mx-4 bg-white rounded-xl shadow-lg overflow-hidden">
-          <div className="bg-blue-600 h-2"></div>
+        <div className="w-full max-w-md mx-4 bg-white rounded-xl shadow-lg overflow-hidden animate-pulse">
+          <div className="bg-blue-200 h-2"></div>
           <div className="p-8">
             <div className="flex flex-col items-center justify-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mb-6"></div>
-              <h1 className="text-2xl font-bold text-gray-800 mb-2">Verifying Invitation</h1>
-              <p className="text-gray-600 text-center">
-                Please wait while we verify your invitation link...
-              </p>
+              <div className="rounded-full h-24 w-24 bg-blue-200 mb-6"></div>
+              <div className="h-8 w-3/4 bg-gray-200 rounded mb-4 mx-auto"></div>
+              <div className="h-4 w-5/6 bg-gray-100 rounded mb-2 mx-auto"></div>
+              <div className="h-4 w-4/6 bg-gray-100 rounded mb-6 mx-auto"></div>
+              
+              {/* Trip information skeleton */}
+              <div className="w-full p-4 border border-gray-100 rounded-lg mb-6">
+                <div className="h-5 w-1/3 bg-gray-200 rounded mb-3"></div>
+                <div className="space-y-2">
+                  <div className="h-4 w-5/6 bg-gray-100 rounded"></div>
+                  <div className="h-4 w-3/4 bg-gray-100 rounded"></div>
+                </div>
+              </div>
+              
+              <div className="flex space-x-3">
+                <div className="h-10 w-28 bg-gray-200 rounded"></div>
+                <div className="h-10 w-28 bg-blue-200 rounded"></div>
+              </div>
             </div>
           </div>
         </div>

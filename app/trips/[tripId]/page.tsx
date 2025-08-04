@@ -177,14 +177,78 @@ export default function TripPage() {
   console.log("User:", user);
   console.log("Members:", members);
 
-  // Loading state
+  // Loading state with skeleton UI
   if (isLoading || authLoading || !initialized || !user) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center p-6">
-        <div className="w-full max-w-4xl p-6 bg-white rounded-lg shadow-md">
-          <h1 className="text-2xl font-bold mb-4 text-center">Loading Trip Details...</h1>
-          <div className="flex justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="min-h-screen flex flex-col p-6">
+        <div className="w-full max-w-6xl mx-auto">
+          {/* Trip Header Card Skeleton */}
+          <div className="mb-6 bg-white rounded-xl shadow-md overflow-hidden animate-pulse">
+            <div className="p-6 border-b">
+              <div className="flex flex-row justify-between items-start">
+                <div className="flex-1">
+                  <div className="h-7 w-3/5 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-4 w-4/5 bg-gray-100 rounded"></div>
+                </div>
+                <div className="flex space-x-2">
+                  <div className="h-8 w-8 sm:w-24 bg-gray-200 rounded"></div>
+                  <div className="h-8 w-8 sm:w-24 bg-gray-200 rounded"></div>
+                </div>
+              </div>
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <div className="h-4 w-16 bg-gray-100 rounded"></div>
+                  <div className="h-5 w-12 bg-gray-200 rounded"></div>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-4 w-16 bg-gray-100 rounded"></div>
+                  <div className="h-5 w-24 bg-gray-200 rounded"></div>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-4 w-16 bg-gray-100 rounded"></div>
+                  <div className="h-5 w-24 bg-gray-200 rounded"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Members Card Skeleton */}
+          <div className="mb-6 bg-white rounded-xl shadow-md overflow-hidden animate-pulse">
+            <div className="p-6 border-b">
+              <div className="h-6 w-32 bg-gray-200 rounded"></div>
+            </div>
+            <div className="p-6">
+              <div className="flex space-x-1">
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="h-12 w-12 rounded-full bg-gray-200"></div>
+                ))}
+              </div>
+            </div>
+          </div>
+          
+          {/* Expenses Card Skeleton */}
+          <div className="bg-white rounded-xl shadow-md overflow-hidden animate-pulse">
+            <div className="p-6 border-b">
+              <div className="h-6 w-24 bg-gray-200 rounded"></div>
+            </div>
+            <div className="p-6">
+              <div className="space-y-4">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="flex justify-between p-3 border rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="h-10 w-10 rounded-full bg-gray-200"></div>
+                      <div className="space-y-2">
+                        <div className="h-5 w-32 bg-gray-200 rounded"></div>
+                        <div className="h-4 w-24 bg-gray-100 rounded"></div>
+                      </div>
+                    </div>
+                    <div className="h-6 w-16 bg-gray-200 rounded self-center"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>

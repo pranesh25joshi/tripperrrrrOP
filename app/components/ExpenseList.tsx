@@ -124,8 +124,43 @@ export default function ExpenseList({
   return (
     <div className="relative pb-20">
       {(isLoading && expenses.length === 0) || localLoading ? (
-        <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="py-4 animate-pulse">
+          {/* Expense items skeleton */}
+          <div className="mb-6">
+            <div className="h-5 w-24 bg-gray-200 rounded mb-3"></div>
+            <div className="space-y-3">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="flex justify-between p-3 border border-gray-200 rounded-lg bg-white">
+                  <div className="flex items-center space-x-3">
+                    <div className="h-10 w-10 rounded-full bg-gray-200"></div>
+                    <div className="space-y-2">
+                      <div className="h-5 w-32 bg-gray-200 rounded"></div>
+                      <div className="h-4 w-24 bg-gray-100 rounded"></div>
+                    </div>
+                  </div>
+                  <div className="h-6 w-16 bg-gray-200 rounded self-center"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          <div className="mt-8">
+            <div className="h-5 w-24 bg-gray-200 rounded mb-3"></div>
+            <div className="space-y-3">
+              {[1, 2].map(i => (
+                <div key={i} className="flex justify-between p-3 border border-gray-200 rounded-lg bg-white">
+                  <div className="flex items-center space-x-3">
+                    <div className="h-10 w-10 rounded-full bg-gray-200"></div>
+                    <div className="space-y-2">
+                      <div className="h-5 w-32 bg-gray-200 rounded"></div>
+                      <div className="h-4 w-24 bg-gray-100 rounded"></div>
+                    </div>
+                  </div>
+                  <div className="h-6 w-16 bg-gray-200 rounded self-center"></div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       ) : error ? (
         <div className="p-4 bg-yellow-50 text-amber-700 rounded-lg mb-4">
