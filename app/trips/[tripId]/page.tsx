@@ -180,7 +180,7 @@ export default function TripPage() {
   // Loading state with skeleton UI
   if (isLoading || authLoading || !initialized || !user) {
     return (
-      <div className="min-h-screen flex flex-col p-6">
+      <div className="min-h-screen flex flex-col mt-16 p-6">
         <div className="w-full max-w-6xl mx-auto">
           {/* Trip Header Card Skeleton */}
           <div className="mb-6 bg-white rounded-xl shadow-md overflow-hidden animate-pulse">
@@ -258,7 +258,7 @@ export default function TripPage() {
   // Error state
   if (error || !currentTrip) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center p-6">
+      <div className="flex min-h-screen flex-col items-center justify-center mt-16 p-6">
         <div className="w-full max-w-4xl p-6 bg-white rounded-lg shadow-md">
           <h1 className="text-2xl font-bold mb-4 text-center text-red-600">Error</h1>
           <p className="text-center mb-6">{error || "Trip not found"}</p>
@@ -276,7 +276,7 @@ export default function TripPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col p-6">
+    <div className="min-h-screen flex flex-col mt-16 p-6">
       <div className="w-full max-w-6xl mx-auto">
         <Card className="mb-6">
           <CardHeader className="flex flex-row justify-between items-start gap-4 pb-3 border-b border-gray-100">

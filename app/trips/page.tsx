@@ -37,7 +37,7 @@ export default function TripsPage() {
   // Loading state with skeleton UI
   if (tripsLoading || authLoading || !initialized || !user) {
     return (
-      <div className="min-h-screen flex flex-col p-6">
+      <div className="min-h-screen flex flex-col mt-16 p-6">
         <div className="w-full max-w-6xl mx-auto">
           {/* Header skeleton */}
           <div className="flex justify-between items-center mb-6">
@@ -82,7 +82,7 @@ export default function TripsPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col p-6">
+    <div className="min-h-screen flex flex-col mt-16 p-6">
       <div className="w-full max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-semibold">My Trips</h1>
