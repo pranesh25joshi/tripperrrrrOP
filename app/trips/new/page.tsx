@@ -80,7 +80,7 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col mt-16 bg-gray-50">
       {/* <Header /> */}
       
       <div className="flex-1 w-full max-w-4xl mx-auto p-6">

@@ -18,6 +18,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Trip Sliptos",
   description: "Manage your trips and expenses with friends",
+  icons: {
+    icon: '/my-notion-face-transparent.svg',
+    apple: '/my-notion-face-transparent.svg',
+  },
 };
 
 export default function RootLayout({
