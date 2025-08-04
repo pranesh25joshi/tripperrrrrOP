@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Trip Sliptos",
+  title: "Tripper",
   description: "Manage your trips and expenses with friends",
   icons: {
     icon: '/my-notion-face-transparent.svg',

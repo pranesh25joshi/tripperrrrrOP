@@ -54,7 +54,7 @@ export default function Home() {
 
         {/* Features Section */}
         <section className="w-full py-12">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-10 text-center">How Trip Sliptos Works</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-10 text-center">How Tripper Works</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Feature 1 */}
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
@@ -97,9 +97,9 @@ export default function Home() {
         <section className="w-full py-12 mb-4">
           <div className="bg-blue-600 rounded-xl p-8 md:p-12 text-center text-white">
             <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to get started?</h2>
-            <p className="text-blue-100 mb-6 max-w-xl mx-auto">Join thousands of travelers who use Trip Sliptos to make group expenses hassle-free.</p>
+            <p className="text-blue-100 mb-6 max-w-xl mx-auto">Join thousands of travelers who use Tripper to make group expenses hassle-free.</p>
             <Link 
-              href="/login" 
+              href={user ? "/trips/new" : "/login"} 
               className="inline-block bg-white text-blue-600 hover:bg-blue-50 font-medium rounded-lg px-6 py-3 transition-colors"
             >
               Create Your First Trip
@@ -112,11 +112,13 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center gap-2 mb-4 md:mb-0">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-blue-600">
-                <path d="M2.25 2.25a.75.75 0 0 0 0 1.5h1.386c.17 0 .318.114.362.278l2.558 9.592a3.752 3.752 0 0 0-2.806 3.63c0 .414.336.75.75.75h15.75a.75.75 0 0 0 0-1.5H5.378A2.25 2.25 0 0 1 7.5 15h11.218a.75.75 0 0 0 .674-.421 60.358 60.358 0 0 0 2.96-7.228.75.75 0 0 0-.525-.965A60.864 60.864 0 0 0 5.68 4.509l-.232-.867A1.875 1.875 0 0 0 3.636 2.25H2.25Z" />
-                <path d="M3.75 20.25a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM16.5 20.25a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
-              </svg>
-              <span className="font-medium">Trip Sliptos</span>
+              <Image 
+                src="/my-notion-face-transparent.png"
+                alt="Tripper Logo"
+                width={40}
+                height={40}
+              />
+              <span className="font-medium">Tripper</span>
             </div>
             <div className="flex flex-wrap gap-6 justify-center text-sm text-gray-600 dark:text-gray-400">
               <Link href="/trips" className="hover:text-blue-600 transition-colors">My Trips</Link>
@@ -126,7 +128,7 @@ export default function Home() {
             </div>
           </div>
           <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
-            © {new Date().getFullYear()} Trip Sliptos. All rights reserved.
+            © {new Date().getFullYear()} Tripper. Made by Young Master - Pranesh
           </p>
         </div>
       </footer>

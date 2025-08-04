@@ -80,7 +80,7 @@ export default function Header() {
                 />
               </div>
               <span className="font-bold text-xl tracking-tight text-gray-900 group-hover:text-blue-600 transition-colors">
-                Trip Sliptos
+                Tripper
               </span>
             </Link>
           </div>
