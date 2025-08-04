@@ -25,17 +25,12 @@ export default function Home() {
               Track, split, and settle expenses with friends, family, or colleagues during your trips. No more awkward money conversations.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-              <Link 
-                onClick={() => {
-                  if (user) {
-                    window.location.href = '/trips';
-                  }
-                }}
-                href="/login" 
+                <Link 
+                href={user ? "/trips/new" : "/login"}
                 className="bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg px-6 py-3 text-center transition-colors"
-              >
+                >
                 Start a New Trip
-              </Link>
+                </Link>
               <Link 
                 href="/trips" 
                 className="bg-white hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 font-medium rounded-lg px-6 py-3 text-center transition-colors"
