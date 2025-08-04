@@ -1,8 +1,12 @@
+'use client';
 import Image from "next/image";
 import Link from "next/link";
 import Header from "./components/Header";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function Home() {
+  const { user } = useAuthStore();
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -22,6 +26,11 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
               <Link 
+                onClick={() => {
+                  if (user) {
+                    window.location.href = '/trips';
+                  }
+                }}
                 href="/login" 
                 className="bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg px-6 py-3 text-center transition-colors"
               >
