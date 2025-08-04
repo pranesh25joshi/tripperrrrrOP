@@ -5,13 +5,13 @@ import { useRouter } from 'next/navigation';
 import { useTripStore } from '@/stores/useTripStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import Link from 'next/link';
-import { 
-  Card, 
-  CardHeader, 
-  CardContent, 
-  CardTitle, 
-  CardDescription, 
-  CardFooter 
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardTitle,
+  CardDescription,
+  CardFooter
 } from '@/components/ui/card';
 
 export default function TripsPage() {
@@ -53,8 +53,8 @@ export default function TripsPage() {
       <div className="w-full max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-semibold">My Trips</h1>
-          
-          <Link 
+
+          <Link
             href="/trips/new"
             className="px-3 py-1.5 text-sm bg-emerald-500 text-white rounded hover:bg-emerald-600 transition flex items-center"
           >
@@ -64,13 +64,13 @@ export default function TripsPage() {
             New Trip
           </Link>
         </div>
-        
+
         {error && (
           <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg">
             {error}
           </div>
         )}
-        
+
         {trips.length === 0 ? (
           <Card className="border border-dashed border-gray-200 p-8 text-center">
             <CardContent className="pt-6">
@@ -81,7 +81,7 @@ export default function TripsPage() {
               <p className="text-gray-500 mb-6">
                 You haven't created or been invited to any trips yet.
               </p>
-              <Link 
+              <Link
                 href="/trips/new"
                 className="px-4 py-2 bg-emerald-500 text-white rounded hover:bg-emerald-600 transition inline-flex items-center"
               >
@@ -97,12 +97,12 @@ export default function TripsPage() {
             {trips.map((trip) => {
               // Determine if trip is active or ended (for the glow effect)
               const isActive = !trip.status || trip.status === 'active';
-              const statusClass = isActive 
-                ? 'before:bg-emerald-500/20 hover:before:bg-emerald-500/30' 
+              const statusClass = isActive
+                ? 'before:bg-emerald-500/20 hover:before:bg-emerald-500/30'
                 : 'before:bg-blue-500/20 hover:before:bg-blue-500/30';
-              
+
               return (
-                <Link 
+                <Link
                   href={`/trips/${trip.id}`}
                   key={trip.id}
                   className={`block relative before:absolute before:inset-0 before:rounded-lg before:z-0 hover:scale-[1.01] transition-all duration-200 ${statusClass}`}
@@ -122,16 +122,24 @@ export default function TripsPage() {
                         )}
                       </div>
                     </CardHeader>
-                    
+
                     <CardFooter className="px-4 py-3 flex justify-between border-t border-gray-50 bg-gray-50/50 text-xs">
                       <div className="flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                         <span className="text-gray-600">
-                          {trip.startDate && new Date(trip.startDate).toLocaleDateString()}
+                          {trip.startDate?.toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
                           {trip.startDate && trip.endDate && ' - '}
-                          {trip.endDate && new Date(trip.endDate).toLocaleDateString()}
+                          {trip.endDate?.toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
                         </span>
                       </div>
                       <div className="flex items-center">

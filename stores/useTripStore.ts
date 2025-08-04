@@ -108,7 +108,9 @@ export const useTripStore = create<TripState>((set, get) => ({
       querySnapshot.forEach((doc) => {
         trips.push({
           id: doc.id,
-          ...doc.data()
+          ...doc.data(),
+          startDate: doc.data().startDate?.toDate(), // convert Timestamp to Date
+          endDate: doc.data().endDate?.toDate(),     // convert Timestamp to Date
         } as Trip);
       });
       console.log("Fetched trips:", trips);
@@ -132,8 +134,11 @@ export const useTripStore = create<TripState>((set, get) => ({
       if (tripDoc.exists()) {
         const tripData = {
           id: tripDoc.id,
-          ...tripDoc.data()
+          ...tripDoc.data(),
+          startDate: tripDoc.data().startDate?.toDate(),
+          endDate: tripDoc.data().endDate?.toDate(),
         } as Trip;
+        console.log("Fetched trip:", tripData);
         
         set({ currentTrip: tripData, isLoading: false });
       } else {

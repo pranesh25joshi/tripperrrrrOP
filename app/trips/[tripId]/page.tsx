@@ -12,13 +12,13 @@ import Image from 'next/image';
 import { db } from '@/firebase/firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { 
-  Card, 
-  CardHeader, 
-  CardFooter, 
-  CardTitle, 
-  CardDescription, 
-  CardContent 
+import {
+  Card,
+  CardHeader,
+  CardFooter,
+  CardTitle,
+  CardDescription,
+  CardContent
 } from '@/components/ui/card';
 import ExpenseList from '@/app/components/ExpenseList';
 import SettlementSummary from '@/app/components/SettlementSummary';
@@ -53,27 +53,27 @@ export default function TripPage() {
   const { user, loading: authLoading, initialized } = useAuthStore();
   const { fetchExpenses } = useExpenseStore();
   const router = useRouter();
-  
+
   const handleEndTrip = async () => {
-    if (!window.confirm("Are you sure you want to end this trip? This will finalize all expenses and calculate settlements.")) {
+    if (!window.confirm("Are you sure you want to end this trip?\n\nThis action will:\n- Finalize all expenses\n- Calculate optimal settlements between members\n- Prevent adding new expenses\n- Generate a settlement summary\n\nThis action cannot be undone.")) {
       return;
     }
-    
+
     setEndingTrip(true);
     try {
       // First, make sure expenses are loaded for the trip
       console.log("Loading expenses before ending trip");
       await fetchExpenses(tripId as string);
-      
+
       // Then end the trip and update trip data
       await endTrip(tripId as string);
-      
+
       // Add toast notification for successful trip ending
       toast.success(`Trip ended successfully!`, {
         description: "All expenses are finalized. View the final settlements below.",
         position: "top-right"
       });
-      
+
       // Refresh trip data
       await fetchTripById(tripId as string);
     } catch (error) {
@@ -91,7 +91,7 @@ export default function TripPage() {
       fetchTripById(tripId as string);
     }
   }, [tripId, fetchTripById, user, initialized]);
-  
+
   // Redirect to login if not authenticated and auth is initialized
   useEffect(() => {
     if (!user && !authLoading && initialized) {
@@ -99,7 +99,7 @@ export default function TripPage() {
       router.push(`/login?redirect=/trips/${tripId}`);
     }
   }, [user, authLoading, initialized, router, tripId]);
-  
+
   // Preload expenses for ended trips to ensure settlement calculations work
   useEffect(() => {
     if (currentTrip && currentTrip.status === 'ended' && tripId) {
@@ -157,12 +157,12 @@ export default function TripPage() {
       // Check if the click was outside of any member avatar or details
       const clickedOnAvatar = (event.target as Element)?.closest('.member-avatar');
       const clickedOnDetails = (event.target as Element)?.closest('.member-details');
-      
+
       if (!clickedOnAvatar && !clickedOnDetails) {
         setActiveMember(null);
       }
     };
-    
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -243,21 +243,21 @@ export default function TripPage() {
                   <span className="hidden sm:inline">{showInviteForm ? 'Hide Invite Form' : 'Invite People'}</span>
                 </button>
               )}
-              
+
               {/* Only show end trip button if trip is active and current user is creator */}
-              {(!currentTrip.status || currentTrip.status === 'active') && 
-               currentTrip.createdBy === user?.uid && (
-                <button
-                  onClick={() => handleEndTrip()}
-                  className="h-8 w-8 sm:h-auto sm:w-auto sm:px-3 sm:py-1.5 text-sm bg-blue-600 text-white rounded hover:opacity-90 transition flex items-center justify-center"
-                  title="End Trip & Settle Up"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span className="hidden sm:inline">End Trip & Settle Up</span>
-                </button>
-              )}
+              {(!currentTrip.status || currentTrip.status === 'active') &&
+                currentTrip.createdBy === user?.uid && (
+                  <button
+                    onClick={() => handleEndTrip()}
+                    className="h-8 w-8 sm:h-auto sm:w-auto sm:px-3 sm:py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center justify-center shadow-sm hover:shadow"
+                    title="End Trip & Calculate Settlements - This will finalize expenses and show how to settle up"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="hidden sm:inline">Finalize & View Settlements</span>
+                  </button>
+                )}
             </div>
           </CardHeader>
 
@@ -272,7 +272,11 @@ export default function TripPage() {
                 <div className="flex flex-col">
                   <span className="text-xs text-[var(--muted-foreground)]">Start Date</span>
                   <p className="font-medium mt-1">
-                    {new Date(currentTrip.startDate).toLocaleDateString()}
+                    {new Date(currentTrip.startDate).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
                   </p>
                 </div>
               )}
@@ -281,7 +285,11 @@ export default function TripPage() {
                 <div className="flex flex-col">
                   <span className="text-xs text-[var(--muted-foreground)]">End Date</span>
                   <p className="font-medium mt-1">
-                    {new Date(currentTrip.endDate).toLocaleDateString()}
+                    {new Date(currentTrip.endDate).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
                   </p>
                 </div>
               )}
@@ -303,32 +311,32 @@ export default function TripPage() {
           <CardHeader>
             <CardTitle>Trip Members</CardTitle>
           </CardHeader>
-          
+
           <CardContent>
             {loadingMembers ? (
               <div className="flex justify-center py-4">
                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
               </div>
             ) : members.length > 0 ? (
-                <div className="flex -space-x-4">
+              <div className="flex -space-x-4">
                 {members.map(member => (
-                  <div 
-                    key={member.uid} 
+                  <div
+                    key={member.uid}
                     className="group relative"
                   >
-                    <Avatar 
+                    <Avatar
                       className="h-12 w-12 border-2 border-white rounded-full hover:z-10 hover:scale-110 transition-transform cursor-pointer member-avatar"
                       onClick={() => setActiveMember(activeMember === member.uid ? null : member.uid)}
                     >
-                      <AvatarImage 
-                        src={member.photoURL} 
-                        alt={member.displayName} 
+                      <AvatarImage
+                        src={member.photoURL}
+                        alt={member.displayName}
                       />
                       <AvatarFallback>
                         {member.displayName.substring(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-                    <div 
+                    <div
                       className={`absolute z-20 bg-white shadow-lg rounded-md p-3 min-w-[140px] -translate-x-1/2 left-1/2 top-14 member-details
                         ${activeMember === member.uid ? 'block' : 'invisible sm:group-hover:visible'}`}
                     >
@@ -337,10 +345,10 @@ export default function TripPage() {
                     </div>
                   </div>
                 ))}
-                </div>
-              ) : (
-                <p className="text-gray-500">No members found for this trip.</p>
-              )}
+              </div>
+            ) : (
+              <p className="text-gray-500">No members found for this trip.</p>
+            )}
 
             {currentTrip.invitedEmails && currentTrip.invitedEmails.length > 0 && (
               <div className="mt-6">
@@ -367,22 +375,22 @@ export default function TripPage() {
                   Trip Ended on {currentTrip.endDate ? new Date(currentTrip.endDate).toLocaleDateString() : 'Unknown date'}
                 </div>
               </CardHeader>
-              
+
               <CardContent>
-                <SettlementSummary 
-                  tripId={tripId as string} 
-                  trip={currentTrip} 
+                <SettlementSummary
+                  tripId={tripId as string}
+                  trip={currentTrip}
                 />
               </CardContent>
             </Card>
-            
+
             <Card className="overflow-hidden">
               <CardHeader>
                 <CardTitle>Expense History</CardTitle>
               </CardHeader>
-              
+
               <CardContent>
-                <ExpenseList 
+                <ExpenseList
                   tripId={tripId as string}
                   tripCurrency={currentTrip.currency}
                   members={members}
@@ -397,21 +405,29 @@ export default function TripPage() {
               <CardTitle>Expenses</CardTitle>
             </CardHeader>
             <CardContent>
-              <ExpenseList 
-                tripId={tripId as string} 
+              <ExpenseList
+                tripId={tripId as string}
                 tripCurrency={currentTrip.currency}
-                members={members} 
+                members={members}
               />
             </CardContent>
           </Card>
         )}
-        
+
         {/* Show pending end trip while loading */}
         {endingTrip && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
-              <p className="text-lg font-medium">Ending trip and calculating settlements...</p>
+            <div className="bg-white p-8 rounded-xl shadow-xl max-w-md w-full">
+              <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mx-auto mb-6"></div>
+              <p className="text-xl font-medium text-gray-800 mb-2">Finalizing Trip</p>
+              <p className="text-sm text-gray-600 mb-4">
+                Processing all expenses and calculating the optimal settlement plan for all members.
+              </p>
+              <div className="flex justify-center space-x-2">
+                <div className="animate-pulse h-2 w-2 rounded-full bg-blue-500"></div>
+                <div className="animate-pulse h-2 w-2 rounded-full bg-blue-500" style={{ animationDelay: '0.2s' }}></div>
+                <div className="animate-pulse h-2 w-2 rounded-full bg-blue-500" style={{ animationDelay: '0.4s' }}></div>
+              </div>
             </div>
           </div>
         )}
