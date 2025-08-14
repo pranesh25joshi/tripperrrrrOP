@@ -33,23 +33,35 @@ export default function InviteForm({ tripId, onClose }: InviteFormProps) {
     if (e.key === 'Enter' || e.key === ',' || e.key === ' ') {
       e.preventDefault();
       
-      const email = emailInput.trim().replace(/,$/, '');
+      // Get input and remove trailing comma if any
+      const input = emailInput.trim().replace(/,$/, '');
       
-      if (email) {
-        // Basic email validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        
-        if (!emailRegex.test(email)) {
-          setError(`Invalid email format: ${email}`);
-          return;
+      // If input is empty, don't do anything
+      if (!input) return;
+      
+      // Handle potential multiple emails in one input (for mobile especially)
+      const emailsToAdd = input.split(/[,\s]+/).filter(e => e.trim());
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      
+      let addedCount = 0;
+      let invalidEmails: string[] = [];
+      
+      emailsToAdd.forEach(email => {
+        if (emailRegex.test(email) && !emailChips.includes(email)) {
+          setEmailChips(prev => [...prev, email]);
+          addedCount++;
+        } else if (!emailRegex.test(email)) {
+          invalidEmails.push(email);
         }
-        
-        // Check for duplicates
-        if (!emailChips.includes(email)) {
-          setEmailChips([...emailChips, email]);
-          setEmailInput('');
-          setError('');
-        }
+      });
+      
+      if (addedCount > 0) {
+        setEmailInput('');
+        setError('');
+      }
+      
+      if (invalidEmails.length > 0) {
+        setError(`Invalid email format: ${invalidEmails.join(', ')}`);
       }
     }
   };
@@ -93,11 +105,21 @@ export default function InviteForm({ tripId, onClose }: InviteFormProps) {
     
     // Add the current input if it's valid
     if (emailInput.trim()) {
-      const email = emailInput.trim();
+      const input = emailInput.trim();
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       
-      if (emailRegex.test(email) && !emailChips.includes(email)) {
-        setEmailChips([...emailChips, email]);
+      // Handle multiple emails separated by commas or spaces
+      const emailsToAdd = input.split(/[,\s]+/).filter(e => e.trim());
+      let newEmails: string[] = [];
+      
+      emailsToAdd.forEach(email => {
+        if (emailRegex.test(email) && !emailChips.includes(email) && !newEmails.includes(email)) {
+          newEmails.push(email);
+        }
+      });
+      
+      if (newEmails.length > 0) {
+        setEmailChips(prev => [...prev, ...newEmails]);
         setEmailInput('');
       }
     }
@@ -204,15 +226,29 @@ export default function InviteForm({ tripId, onClose }: InviteFormProps) {
                 className="absolute right-0 bg-black text-white p-3 rounded-r-md hover:bg-gray-800 disabled:bg-gray-400 transition-colors"
                 onClick={() => {
                   if (emailInput.trim()) {
-                    const email = emailInput.trim();
+                    // Split by spaces or commas in case user is on mobile and typed multiple emails
+                    const emailsToAdd = emailInput.trim().split(/[,\s]+/).filter(e => e.trim());
                     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                     
-                    if (emailRegex.test(email) && !emailChips.includes(email)) {
-                      setEmailChips([...emailChips, email]);
+                    let addedCount = 0;
+                    let invalidEmails: string[] = [];
+                    
+                    emailsToAdd.forEach(email => {
+                      if (emailRegex.test(email) && !emailChips.includes(email)) {
+                        setEmailChips(prev => [...prev, email]);
+                        addedCount++;
+                      } else if (!emailRegex.test(email)) {
+                        invalidEmails.push(email);
+                      }
+                    });
+                    
+                    if (addedCount > 0) {
                       setEmailInput('');
                       setError('');
-                    } else if (!emailRegex.test(email)) {
-                      setError(`Invalid email format: ${email}`);
+                    }
+                    
+                    if (invalidEmails.length > 0) {
+                      setError(`Invalid email format: ${invalidEmails.join(', ')}`);
                     }
                   }
                 }}
@@ -262,15 +298,15 @@ export default function InviteForm({ tripId, onClose }: InviteFormProps) {
                 <line x1="12" y1="8" x2="12" y2="12"></line>
                 <line x1="12" y1="16" x2="12.01" y2="16"></line>
               </svg>
-                <span>
-                  Don't worry, you can add more participants later or share an invite link after creating the trip.
-                  <ul className="mt-2 ml-4 list-disc text-gray-600">
-                    <li>Press <span className="font-medium">Enter</span> to add email</li>
-                    <li>Press <span className="font-medium">Space</span> to add email</li>
-                    <li>Type <span className="font-medium">comma (,)</span> to add email</li>
-                    <li>You can also paste multiple emails at once</li>
-                  </ul>
-                </span>
+              <span>
+                Don't worry, you can add more participants later or share an invite link after creating the trip.
+                <ul className="mt-2 ml-4 list-disc text-gray-600">
+                  <li>Enter multiple emails separated by spaces or commas</li>
+                  <li>Press the <span className="font-medium">+</span> button to add emails</li>
+                  <li>You can also paste multiple emails at once</li>
+                  <li>On desktop: press <span className="font-medium">Enter</span>, <span className="font-medium">Space</span> or type <span className="font-medium">comma (,)</span> to add email</li>
+                </ul>
+              </span>
             </div>
           </div>
         </div>
