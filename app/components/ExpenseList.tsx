@@ -52,7 +52,7 @@ const categoryIcons: Record<string, React.ReactNode> = {
 
 export default function ExpenseList({ 
   tripId, 
-  tripCurrency = 'USD', 
+  tripCurrency = 'INR', 
   members = [], 
   readOnly = false 
 }: ExpenseListProps) {

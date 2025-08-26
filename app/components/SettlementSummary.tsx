@@ -7,6 +7,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/firebase/firebaseConfig';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { toast } from "sonner";
+import { announceSettlement } from '@/lib/tts';
 
 interface SettlementProps {
   tripId: string;
@@ -125,6 +126,9 @@ export default function SettlementSummary({ tripId, trip }: SettlementProps) {
           setSettlements(displaySettlements);
           lastCalculatedTripRef.current = tripId;
           setCalculationComplete(true);
+          
+          // Voice announcement for settlements
+          announceSettlement(displaySettlements);
           
           // Only show a toast if there are settlements needed
           if (displaySettlements.length > 0) {

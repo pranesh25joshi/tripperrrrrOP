@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/card';
 import ExpenseList from '@/app/components/ExpenseList';
 import SettlementSummary from '@/app/components/SettlementSummary';
+import { announceWelcome } from '@/lib/tts';
 
 // Interface for member data
 interface MemberData {
@@ -47,12 +48,21 @@ export default function TripPage() {
   const [loadingMembers, setLoadingMembers] = useState(false);
   const [endingTrip, setEndingTrip] = useState(false);
   const [activeMember, setActiveMember] = useState<string | null>(null);
+  const [hasAnnouncedWelcome, setHasAnnouncedWelcome] = useState(false);
 
   const { tripId } = useParams<{ tripId: string }>();
   const { currentTrip, isLoading, error, fetchTripById, endTrip } = useTripStore();
   const { user, loading: authLoading, initialized } = useAuthStore();
   const { fetchExpenses } = useExpenseStore();
   const router = useRouter();
+
+  // Welcome announcement when trip loads
+  useEffect(() => {
+    if (currentTrip && !hasAnnouncedWelcome && !isLoading) {
+      announceWelcome(currentTrip.name);
+      setHasAnnouncedWelcome(true);
+    }
+  }, [currentTrip, isLoading, hasAnnouncedWelcome]);
 
   const handleEndTrip = async () => {
     if (!window.confirm("Are you sure you want to end this trip?\n\nThis action will:\n- Finalize all expenses\n- Calculate optimal settlements between members\n- Prevent adding new expenses\n- Generate a settlement summary\n\nThis action cannot be undone.")) {

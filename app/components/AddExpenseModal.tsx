@@ -5,6 +5,7 @@ import { useExpenseStore } from '@/stores/useExpenseStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { FaTimes } from 'react-icons/fa';
 import { toast } from "sonner";
+import { announceExpense } from '@/lib/tts';
 
 interface AddExpenseModalProps {
   tripId: string;
@@ -29,6 +30,10 @@ export default function AddExpenseModal({ tripId, tripCurrency, onClose }: AddEx
   const { addExpense, isLoading } = useExpenseStore();
   const { user } = useAuthStore();
   
+  // Test logging on component mount
+  console.log('🎯 AddExpenseModal mounted!', { tripId, tripCurrency });
+  alert('AddExpenseModal mounted! Check if you can see this alert.');
+  
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -47,24 +52,34 @@ export default function AddExpenseModal({ tripId, tripCurrency, onClose }: AddEx
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('🚀 handleSubmit called - Form submitted!');
+    alert('handleSubmit called!');
     setError('');
     
     if (!formData.name.trim()) {
+      console.log('❌ Form validation failed: No expense name');
       setError('Please enter an expense name');
       return;
     }
     
     if (!formData.amount || isNaN(Number(formData.amount)) || Number(formData.amount) <= 0) {
+      console.log('❌ Form validation failed: Invalid amount');
       setError('Please enter a valid amount');
       return;
     }
     
     if (!user) {
+      console.log('❌ User validation failed: Not logged in');
       setError('You must be logged in to add an expense');
       return;
     }
     
+    console.log('✅ All validations passed, about to create expense...');
+    console.log('📝 Form data:', formData);
+    console.log('👤 User:', user.displayname || 'Unknown');
+    
     try {
+      console.log('🔄 Calling addExpense...');
       await addExpense({
         tripId,
         name: formData.name,
@@ -80,12 +95,29 @@ export default function AddExpenseModal({ tripId, tripCurrency, onClose }: AddEx
         }
       });
       
+      console.log('✅ Expense added successfully, about to announce...');
+      
       toast.success(`Expense "${formData.name}" added!`, {
         description: `${formData.currency} ${Number(formData.amount).toFixed(2)} added to trip.`,
         position: "top-right"
       });
       
-      onClose();
+      console.log('🔊 Calling announceExpense with:', {
+        amount: Number(formData.amount),
+        name: formData.name,
+        paidBy: user.displayname || 'Unknown'
+      });
+      
+      // Voice announcement
+      announceExpense(Number(formData.amount), formData.name, user.displayname || 'Unknown');
+      
+      console.log('🔊 announceExpense called, setting timeout to close modal...');
+      
+      // Small delay to allow voice to start before closing modal
+      setTimeout(() => {
+        console.log('🔊 Closing modal now...');
+        onClose();
+      }, 200);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to add expense');
     }
@@ -222,6 +254,10 @@ export default function AddExpenseModal({ tripId, tripCurrency, onClose }: AddEx
             <button
               type="submit"
               disabled={isLoading}
+              onClick={() => {
+                console.log('🔴 SUBMIT BUTTON CLICKED!');
+                alert('Submit button clicked!');
+              }}
               className="w-full px-4 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
             >
               {isLoading ? (

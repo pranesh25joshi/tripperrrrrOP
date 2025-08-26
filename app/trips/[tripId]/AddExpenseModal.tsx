@@ -6,6 +6,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { FaTimes, FaUserFriends, FaEquals, FaDivide } from 'react-icons/fa';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { toast } from "sonner";
+import { announceExpense } from '@/lib/tts';
 
 interface TripMember {
   uid: string;
@@ -219,7 +220,14 @@ export default function AddExpenseModal({ tripId, tripCurrency, members, onClose
         position: "top-right"
       });
       
-      onClose();
+      // Voice announcement
+      console.log('🔊 About to announce expense:', formData.name, Number(formData.amount), user.displayname);
+      announceExpense(Number(formData.amount), formData.name, user.displayname || 'Unknown');
+      
+      // Small delay to allow voice to start before closing modal
+      setTimeout(() => {
+        onClose();
+      }, 200);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to add expense');
     }
@@ -308,14 +316,14 @@ export default function AddExpenseModal({ tripId, tripCurrency, members, onClose
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value={tripCurrency}>{tripCurrency}</option>
+                {/* <option value="INR">INR</option>
                 <option value="USD">USD</option>
                 <option value="EUR">EUR</option>
                 <option value="GBP">GBP</option>
-                <option value="INR">INR</option>
                 <option value="CAD">CAD</option>
                 <option value="AUD">AUD</option>
                 <option value="JPY">JPY</option>
-                <option value="CNY">CNY</option>
+                <option value="CNY">CNY</option> */}
               </select>
             </div>
           </div>

@@ -6,7 +6,8 @@ import Image from 'next/image';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useRouter, usePathname } from 'next/navigation';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { FiPlus, FiLogOut, FiHome, FiMap, FiUser, FiMenu, FiX } from 'react-icons/fi';
+import { FiPlus, FiLogOut, FiHome, FiMap, FiUser, FiMenu, FiX, FiVolume2, FiVolumeX } from 'react-icons/fi';
+import { toggleTTS, isTTSEnabled } from '@/lib/tts';
 
 export default function Header() {
   const { user, logout } = useAuthStore();
@@ -15,6 +16,7 @@ export default function Header() {
   const [showMenu, setShowMenu] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [ttsEnabled, setTtsEnabled] = useState(true);
   const menuRef = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLButtonElement>(null);
 
@@ -30,6 +32,11 @@ export default function Header() {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Check TTS state on mount
+  useEffect(() => {
+    setTtsEnabled(isTTSEnabled());
   }, []);
 
   // Close menu when clicking outside
@@ -53,6 +60,11 @@ export default function Header() {
     await logout();
     setShowMenu(false);
     router.push('/login');
+  };
+
+  const handleTTSToggle = () => {
+    const newState = toggleTTS();
+    setTtsEnabled(newState);
   };
 
   return (
@@ -148,6 +160,17 @@ export default function Header() {
                         <FiPlus className="mr-3 text-gray-500" />
                         New Trip
                       </Link>
+                      <button
+                        onClick={handleTTSToggle}
+                        className="flex w-full items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        {ttsEnabled ? (
+                          <FiVolume2 className="mr-3 text-gray-500" />
+                        ) : (
+                          <FiVolumeX className="mr-3 text-gray-500" />
+                        )}
+                        Voice {ttsEnabled ? 'On' : 'Off'}
+                      </button>
                     </div>
                     <div className="py-1 border-t border-gray-100">
                       <button
@@ -235,6 +258,17 @@ export default function Header() {
                     New Trip
                   </div>
                 </Link>
+                <button
+                  onClick={() => {
+                    handleTTSToggle();
+                  }}
+                  className="block w-full text-left px-4 py-3 rounded-lg text-base font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-center">
+                    {ttsEnabled ? <FiVolumeX className="mr-3" /> : <FiVolume2 className="mr-3" />}
+                    {ttsEnabled ? 'Disable Voice' : 'Enable Voice'}
+                  </div>
+                </button>
                 <button
                   onClick={() => {
                     setMobileMenuOpen(false);
