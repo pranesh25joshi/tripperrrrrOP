@@ -25,6 +25,7 @@
 - **Expense Creation**: "New expense added: [description] for $[amount], paid by [user]"
 - **Settlement Calculations**: "Settlement summary: [count] payments needed. [user] owes [user] $[amount]"
 - **Trip Welcome**: "Welcome to [tripName]! Your smart expense tracker is ready with voice announcements."
+- **Trip Completion**: "Trip [tripName] has been completed! [count] expenses finalized. Detailed summary emails sent to [count] members."
 - **All Settled**: "Congratulations! All expenses are perfectly settled. No payments needed."
 
 ### 5. **User Interface Integration**

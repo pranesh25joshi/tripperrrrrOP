@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/card';
 import ExpenseList from '@/app/components/ExpenseList';
 import SettlementSummary from '@/app/components/SettlementSummary';
-import { announceWelcome } from '@/lib/tts';
+import { announceWelcome, announceTripComplete, setSuppressSettlementAnnouncements } from '@/lib/tts';
 
 // Interface for member data
 interface MemberData {
@@ -53,7 +53,7 @@ export default function TripPage() {
   const { tripId } = useParams<{ tripId: string }>();
   const { currentTrip, isLoading, error, fetchTripById, endTrip } = useTripStore();
   const { user, loading: authLoading, initialized } = useAuthStore();
-  const { fetchExpenses } = useExpenseStore();
+  const { fetchExpenses, expenses, calculateOptimizedSettlements } = useExpenseStore();
   const router = useRouter();
 
   // Welcome announcement when trip loads
@@ -65,7 +65,7 @@ export default function TripPage() {
   }, [currentTrip, isLoading, hasAnnouncedWelcome]);
 
   const handleEndTrip = async () => {
-    if (!window.confirm("Are you sure you want to end this trip?\n\nThis action will:\n- Finalize all expenses\n- Calculate optimal settlements between members\n- Prevent adding new expenses\n- Generate a settlement summary\n\nThis action cannot be undone.")) {
+    if (!window.confirm("Are you sure you want to end this trip?\n\nThis action will:\n- Finalize all expenses\n- Calculate optimal settlements between members\n- Prevent adding new expenses\n- Generate a settlement summary\n- Send detailed trip summary emails to all members\n\nThis action cannot be undone.")) {
       return;
     }
 
@@ -80,9 +80,25 @@ export default function TripPage() {
 
       // Add toast notification for successful trip ending
       toast.success(`Trip ended successfully!`, {
-        description: "All expenses are finalized. View the final settlements below.",
-        position: "top-right"
+        description: "All expenses are finalized. Detailed summary emails are being sent to all members.",
+        position: "top-right",
+        duration: 5000
       });
+
+      // Voice announcement for trip completion
+      if (currentTrip) {
+        const expenseCount = expenses.filter(e => e.tripId === tripId).length;
+        const memberCount = members.length;
+        
+        // Suppress settlement announcements completely during and after trip completion
+        setSuppressSettlementAnnouncements(true);
+        
+        // Simple announcement - trip ended, emails will be delivered
+        announceTripComplete(currentTrip.name, expenseCount, memberCount);
+        
+        // Keep settlement announcements suppressed permanently for ended trips
+        // (they can see settlement details in the email and UI)
+      }
 
       // Refresh trip data
       await fetchTripById(tripId as string);

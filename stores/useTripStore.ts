@@ -258,6 +258,31 @@ export const useTripStore = create<TripState>((set, get) => ({
         ),
         isLoading: false
       }));
+
+      // Send trip summary emails to all members
+      try {
+        console.log(`📧 Sending trip summary emails for trip: ${tripId}`);
+        const response = await fetch('/api/email/send-trip-summary', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ tripId }),
+        });
+
+        const result = await response.json();
+        
+        if (response.ok) {
+          console.log('✅ Trip summary emails sent successfully:', result);
+          console.log(`📊 Email Results: ${result.statistics.totalSent} sent, ${result.statistics.totalFailed} failed`);
+        } else {
+          console.error('❌ Failed to send trip summary emails:', result);
+          console.error('Response status:', response.status);
+        }
+      } catch (emailError) {
+        console.error('💥 Error sending trip summary emails:', emailError);
+        // Don't fail the trip ending if email fails
+      }
       
     } catch (error) {
       console.error("Error ending trip:", error);

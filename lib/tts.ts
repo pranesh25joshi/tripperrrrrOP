@@ -165,8 +165,41 @@ export const speakText = async (
   }
 };
 
+// Debouncing to prevent multiple announcements
+let lastAnnouncementTime: Record<string, number> = {};
+const ANNOUNCEMENT_COOLDOWN = 3000; // 3 seconds
+
+// Global flag to suppress settlement announcements during trip completion
+let suppressSettlementAnnouncements = false;
+
+export const setSuppressSettlementAnnouncements = (suppress: boolean) => {
+  suppressSettlementAnnouncements = suppress;
+  console.log('🔊 Settlement announcements suppressed:', suppress);
+};
+
+const canAnnounce = (type: string): boolean => {
+  // Special case: suppress settlement announcements when trip is being completed
+  if (type === 'settlement' && suppressSettlementAnnouncements) {
+    console.log('🔊 Skipping settlement announcement - suppressed during trip completion');
+    return false;
+  }
+  
+  const now = Date.now();
+  const lastTime = lastAnnouncementTime[type] || 0;
+  
+  if (now - lastTime < ANNOUNCEMENT_COOLDOWN) {
+    console.log(`🔊 Skipping ${type} announcement - too recent (${now - lastTime}ms ago)`);
+    return false;
+  }
+  
+  lastAnnouncementTime[type] = now;
+  return true;
+};
+
 // Predefined announcement functions with specific voices
 export const announceExpense = (amount: number, description: string, paidBy: string) => {
+  if (!canAnnounce('expense')) return;
+  
   console.log('🔊 announceExpense called with:', { amount, description, paidBy });
   const message = `New expense added: ${description} for Rupees ${amount.toFixed(2)}, paid by ${paidBy}`;
   console.log('🔊 Message to speak:', message);
@@ -178,6 +211,8 @@ export const announceExpense = (amount: number, description: string, paidBy: str
 };
 
 export const announceSettlement = (settlements: Array<{from: string, to: string, amount: number}>) => {
+  if (!canAnnounce('settlement')) return;
+  
   if (settlements.length === 0) {
     speakText("Congratulations! All expenses are perfectly settled. No payments needed.", VOICE_IDS.settlement);
     return;
@@ -188,8 +223,17 @@ export const announceSettlement = (settlements: Array<{from: string, to: string,
 };
 
 export const announceWelcome = (tripName: string) => {
+  if (!canAnnounce('welcome')) return;
+  
   const message = `Welcome to ${tripName}! Your smart expense tracker is ready with voice announcements.`;
   speakText(message, VOICE_IDS.welcome);
+};
+
+export const announceTripComplete = (tripName: string, totalExpenses: number, emailsSent: number) => {
+  if (!canAnnounce('tripComplete')) return;
+  
+  const message = `Trip ${tripName} has been completed! ${totalExpenses} expenses finalized. Detailed summary emails will be delivered shortly to all members.`;
+  speakText(message, VOICE_IDS.notification);
 };
 
 // Toggle TTS on/off
@@ -260,6 +304,10 @@ if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
     testExpenseAnnouncement,
     speakText,
     announceExpense,
+    announceSettlement,
+    announceWelcome,
+    announceTripComplete,
+    setSuppressSettlementAnnouncements,
     isTTSEnabled,
     fallbackTTS
   };

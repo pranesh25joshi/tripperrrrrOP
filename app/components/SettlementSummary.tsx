@@ -127,8 +127,10 @@ export default function SettlementSummary({ tripId, trip }: SettlementProps) {
           lastCalculatedTripRef.current = tripId;
           setCalculationComplete(true);
           
-          // Voice announcement for settlements
-          announceSettlement(displaySettlements);
+          // Voice announcement for settlements (only for active trips)
+          if (trip.status !== 'ended') {
+            announceSettlement(displaySettlements);
+          }
           
           // Only show a toast if there are settlements needed
           if (displaySettlements.length > 0) {
