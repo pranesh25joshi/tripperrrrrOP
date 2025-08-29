@@ -201,7 +201,7 @@ export const announceExpense = (amount: number, description: string, paidBy: str
   if (!canAnnounce('expense')) return;
   
   console.log('🔊 announceExpense called with:', { amount, description, paidBy });
-  const message = `New expense added: ${description} for Rupees ${amount.toFixed(2)}, paid by ${paidBy}`;
+  const message = `New expense added: ${description} for Rupees ${amount.toFixed(0)}, paid by ${paidBy}`;
   console.log('🔊 Message to speak:', message);
   
   // Only call speakText once to avoid duplicate voices

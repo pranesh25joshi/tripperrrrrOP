@@ -674,7 +674,8 @@ export async function POST(req: NextRequest) {
 
     console.log(`📧 Preparing to send emails to ${Object.values(memberDetails).length} members:`);
     Object.values(memberDetails).forEach(member => {
-      console.log(`  - ${member.displayName} (${member.email})`);
+      console.log(`  - ${member.displayName} (${member.email || 'NO EMAIL'})`);
+      console.log(`    Email valid: ${!!(member.email && member.email.trim())}`);
     });
 
     for (const member of Object.values(memberDetails)) {
@@ -684,7 +685,7 @@ export async function POST(req: NextRequest) {
           
           // Prepare email configuration
           const emailConfig: any = {
-            from: "Tripper Team <noreply@resend.dev>",
+            from: `Pranesh - Team Tripper <summarise@pranesh.xyz>`,
             to: [member.email],
             subject: `🎯 Trip Summary: ${tripData.name} - Complete Expense Report`,
             html: htmlContent,

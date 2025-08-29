@@ -247,7 +247,7 @@ export default function AddExpenseModal({ tripId, tripCurrency, members, onClose
           </button>
         </div>
         
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="p-6 space-y-6 pb-32 sm:pb-6">
           {error && (
             <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">
               {error}
