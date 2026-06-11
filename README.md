@@ -359,5 +359,5 @@ For support, email [support@tripsliptos.app](mailto:support@tripsliptos.app) or 
 <div align="center">
   Made with ❤️ by [Pranesh Joshi](https://github.com/pranesh25joshi)
   
-  **[Live Demo](https://tripper.pranesh.xyz)** | **[Report Bug](https://github.com/pranesh25joshi/tripperrrrrOP/issues)** | **[Request Feature](https://github.com/pranesh25joshi/tripperrrrrOP/issues)**
+  **[Live Demo](https://tripper.iampranesh.me)** | **[Report Bug](https://github.com/pranesh25joshi/tripperrrrrOP/issues)** | **[Request Feature](https://github.com/pranesh25joshi/tripperrrrrOP/issues)**
 </div>
