@@ -685,7 +685,7 @@ export async function POST(req: NextRequest) {
           
           // Prepare email configuration
           const emailConfig: any = {
-            from: `Pranesh - Team Tripper <summarise@pranesh.xyz>`,
+            from: `Pranesh - Team Tripper <summarise@iampranesh.me>`,
             to: [member.email],
             subject: `🎯 Trip Summary: ${tripData.name} - Complete Expense Report`,
             html: htmlContent,
