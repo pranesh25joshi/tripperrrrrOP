@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
 
         // Send email with personal link
         await resend.emails.send({
-          from: `Pranesh <invitetrips@pranesh.xyz>`,
+          from: `Pranesh <invitetrips@iampranesh.me>`,
           to: [recipientEmail],
           subject: `${senderName} invited you to join a trip on Trip Sliptos`,
           text: `${senderName} (${senderEmail}) has invited you to join "${tripData.name}" on Trip Sliptos. Click this link to accept: ${inviteUrl}`,
